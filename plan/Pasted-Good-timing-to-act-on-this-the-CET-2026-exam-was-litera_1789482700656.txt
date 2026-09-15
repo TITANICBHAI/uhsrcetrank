@@ -1,0 +1,870 @@
+Good timing to act on this — the CET-2026 exam was literally two days ago (Sept 13). Results will drop in days or weeks. You need the site ready before they do.
+
+Let me cover three things: what the UHSR site actually looks like, the backend language decision, and the full revised plan with prompts.
+
+---
+
+## What the UHSR site actually looks like (for the builder)
+
+Key visual elements pulled directly from uhsrcetadmissions.in:
+
+- Full-width dark blue header, Haryana emblem on left, bold white title text centered/right
+- Nav bar directly under header: Home | Notifications | Helpdesk | FAQ — College Login floated right
+- Content is a large bordered "Important Links / Notice" box taking up most of the page
+- CET Schedule rendered as a plain bordered table: Sr. No. | Announcement | Date
+- "Latest News" as a static bullet list in a side-panel or stacked below
+- Footer: "Maintained for Department of Medical Education and Research, Government of Haryana | No. of Visitors: XXXXXX"
+- Zero border-radius, 1px solid borders everywhere, no shadows, no gradients
+- Haryana emblem is theirs — you cannot use it. Skip it or replace with a neutral utility icon
+
+---
+
+## Backend language: drop Kotlin, use Python + FastAPI
+
+**Answer:** Python 3.12 + FastAPI is the right call here, not Kotlin.
+
+**Confidence:** 0.92
+
+**Why Python wins for this specific project:**
+
+The hardest part of this whole build is the importer — parsing thousands of rows from a messy PDF-converted Markdown, normalizing dates, deduplicating, and cleaning garbage characters. Python is the best language on earth for exactly this. `pdfplumber`, `chardet`, `regex`, `dateparser` — all battle-tested, all pip-installable in seconds.
+
+**FastAPI specifically over Flask/Django:**
+
+FastAPI gives you Pydantic models (like Kotlin data classes but better for validation), async out of the box, and auto-generated API docs at `/docs` for free. It's also trivially deployable on Railway — you push to GitHub and it's live.
+
+**Deployment comparison:**
+
+| | Kotlin + Ktor | Python + FastAPI |
+|---|---|---|
+| Deploy method | Fat JAR + Docker + Gradle config | `railway up` or push to GitHub |
+| PDF processing | Apache PDFBox (verbose) | pdfplumber (5 lines) |
+| Text normalization | Custom everything | `dateparser`, `chardet`, regex |
+| ORM | Exposed (JVM-specific) | SQLAlchemy (SQLite → Postgres, same code) |
+| PDF generation | PDFBox (complex) | reportlab or weasyprint |
+| Dev experience | Heavy JVM startup | Instant, fast iteration |
+| Community help | Niche | Enormous |
+
+---
+
+## Revised tech stack
+
+| Layer | Choice |
+|---|---|
+| Frontend | Plain HTML5 + CSS3 + Vanilla JS |
+| Backend | Python 3.12 + FastAPI + Pydantic v2 |
+| ORM | SQLAlchemy 2.0 + SQLite → PostgreSQL |
+| PDF reading | pdfplumber |
+| PDF generation | reportlab |
+| Auth | Header secret (`X-Admin-Secret`) |
+| Frontend hosting | Cloudflare Pages |
+| Backend hosting | Railway (push-to-deploy, free tier fine for v1) |
+
+---
+
+## Revised project structure
+
+```
+uhsr-cet-rank/
+├── frontend/                         ← Cloudflare Pages (static)
+│   ├── index.html
+│   ├── result.html
+│   ├── faq.html
+│   ├── methodology.html
+│   ├── admin.html
+│   ├── css/
+│   │   └── portal.css
+│   └── js/
+│       ├── config.js
+│       ├── search.js
+│       └── admin.js
+│
+└── backend/                          ← Railway
+    ├── main.py                       ← FastAPI app entry
+    ├── requirements.txt
+    ├── Dockerfile
+    ├── .env.example
+    └── app/
+        ├── config.py                 ← env vars, settings
+        ├── database.py               ← SQLAlchemy engine + session
+        ├── models/
+        │   ├── db_models.py          ← SQLAlchemy table definitions
+        │   └── schemas.py            ← Pydantic request/response models
+        ├── routers/
+        │   ├── public.py             ← /api/search, /api/datasets/active, /api/health
+        │   └── admin.py              ← /admin/* routes (protected)
+        ├── importer/
+        │   ├── markdown_importer.py  ← top-level entry point
+        │   ├── table_extractor.py    ← find + parse pipe tables from messy MD
+        │   ├── candidate_normalizer.py ← raw row → Candidate object
+        │   └── validation_engine.py  ← pre-publish checks, ImportReport
+        ├── ranking/
+        │   ├── ranking_engine.py     ← configurable comparator chain
+        │   └── ranking_config.py     ← criteria definitions + default config
+        └── pdf_report.py             ← reportlab PDF generation
+```
+
+---
+
+## Full build plan — 7 prompts
+
+Use these in order. Each is self-contained and references the exact file structure above.
+
+---
+
+### PROMPT 1 — Frontend Shell
+
+> Give this prompt to a coding agent or use directly. The agent should visit uhsrcetadmissions.in to study the visual structure before writing a single line of CSS.
+
+---
+
+Build the complete static frontend for **UHSR CET Rank Calculator 2026**.
+
+This is an independent candidate utility — not affiliated with UHSR. The calculator is in "data not available yet" state because the 2026 result has not been published.
+
+**First: visit https://www.uhsrcetadmissions.in/ and study the visual structure before writing any CSS. Match it closely.**
+
+Key visual elements you will observe on that site and must replicate in feel (not copy exactly):
+- Full-width dark blue header band with site title in large white bold text, smaller subtitle below
+- Horizontal nav bar directly below header (same dark blue or slightly lighter)
+- Main content area: a large bordered box containing an "Important Links / Notice" section
+- A bordered table inside that box showing a schedule (Sr. No. | Item | Date)
+- "Latest News" as a bulleted static list
+- Footer: simple text line, visitor count style
+- Zero border-radius anywhere. 1px solid borders. No gradients. No shadows. Dense government-portal information layout.
+
+**CSS custom properties to use exactly:**
+```css
+:root {
+  --blue-dark:  #1a3a6e;
+  --blue-mid:   #2a5298;
+  --blue-light: #d6e4f7;
+  --orange:     #d35400;
+  --orange-bg:  #fef9e7;
+  --red-alert:  #c0392b;
+  --green:      #1e8449;
+  --white:      #ffffff;
+  --gray-bg:    #f4f4f4;
+  --border:     #c8c8c8;
+  --text:       #222222;
+  --text-muted: #666666;
+  --font:       Arial, Helvetica, sans-serif;
+  --rank-size:  3rem;
+}
+```
+
+Do NOT use border-radius anywhere except exactly 0 or 2px maximum. No external CSS frameworks.
+
+**Produce these files:**
+
+**css/portal.css** — all styles, including:
+- Header band (`--blue-dark` bg, white text, dense padding)
+- Nav bar (`--blue-mid` bg, white links, no underline, hover changes bg slightly)
+- Notice box: 4px left border in `--orange`, background `--orange-bg`, bold "⚠ Important Notice" header
+- bordered section boxes with 1px `--border` all sides
+- Table styles: 1px borders, `--blue-mid` header row with white text, alternating `--gray-bg` rows
+- Square buttons: solid `--blue-mid` background, white text, no border-radius, 0px, hover darkens
+- Mobile: 768px breakpoint, nav stacks vertically, tables scroll horizontally
+- No animations, no transitions
+
+**index.html:**
+1. Header: "UHSR CET Rank Calculator 2026" (large, white, bold), subtitle "Independent Candidate Utility — Not affiliated with UHSR" (smaller white), right-aligned small text "Based on publicly available data"
+2. Nav: Home | Methodology | FAQ | Official UHSR Portal↗ (external link to https://www.uhsrcetadmissions.in/)
+3. Important Notice box: "This website is an independent candidate utility and is NOT affiliated with, operated by, or endorsed by UHSR or the Department of Medical Education and Research, Government of Haryana. The estimated merit position shown here is independently calculated from publicly available data. Always refer to the official UHSR result for counselling. → Visit Official UHSR CET Portal (link)"
+4. Calculator section — disabled state: CET selector (disabled/greyed), Roll Number input (disabled/greyed), Search button (disabled). Inside the box, a prominent warning banner: "⚠ UHSR CET 2026 Result Data Not Yet Available — The calculator will be activated once UHSR publishes the official 2026 result data."
+5. "About This Calculator" section: short paragraph explaining this is a Roll Number lookup utility that calculates estimated merit position from UHSR's published candidate data. Links to Methodology page.
+6. FAQ stub: 4 questions inline (Is this official? When will it activate? How is rank calculated? Roll number not found?)
+7. Footer: "UHSR CET Rank Calculator 2026 — Independent Candidate Utility | Not affiliated with UHSR | Official results: uhsrcetadmissions.in | © 2026"
+
+**result.html** — populated by JS, structure only:
+- Same header/nav/footer
+- Same Important Notice box
+- "Candidate Details" table (Roll No, Name, Score, Percentile, DOB, Category, CET) — all cells empty, JS fills them
+- "Estimated Merit Position" card: large bordered box, rank number at `--rank-size` bold centered, "of X candidates" below, "X candidates ahead" below that
+- "Why This Rank?" collapsible section (JS fills)
+- Dataset info: small table — Dataset version, Ranking method, Calculated at
+- "Generate My Rank Report" button (active, calls JS)
+- "Search Another Roll Number" link back to index.html
+- Disclaimer repeated at bottom
+
+**faq.html** — government-style table/accordion layout, 10+ questions covering: official vs unofficial, when available, how rank is calculated, what if not found, tie-breaks, accuracy, who made this, is the data safe, how often updated, can I rely on this for counselling (answer: no — always use official result)
+
+**methodology.html** — explains the ranking process: source is UHSR published data, fields used, comparator chain, tie-break handling, dataset versioning, what "Estimated Merit Position" means vs official rank
+
+**Do NOT include:**
+- Any UHSR logo, Haryana emblem, or government seal
+- Fake rank numbers, fake candidate counts, fake statistics
+- Countdown timers
+- The word "Official" in our own branding (only in the link/notice directing people to UHSR)
+
+---
+
+### PROMPT 2 — Python/FastAPI Backend Skeleton
+
+> Use after Prompt 1. Builds the full backend structure, models, DB, and routing stubs. No importer or ranking logic yet.
+
+---
+
+Build a Python 3.12 + FastAPI backend for UHSR CET Rank Calculator 2026.
+
+**requirements.txt:**
+```
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+sqlalchemy==2.0.35
+pydantic==2.8.0
+pydantic-settings==2.5.0
+python-multipart==0.0.12
+aiosqlite==0.20.0
+greenlet==3.1.0
+python-dateutil==2.9.0
+pdfplumber==0.11.4
+reportlab==4.2.2
+loguru==0.7.2
+```
+
+**Project structure to create:**
+```
+backend/
+├── main.py
+├── requirements.txt
+├── Dockerfile
+├── .env.example
+└── app/
+    ├── config.py
+    ├── database.py
+    ├── models/
+    │   ├── db_models.py
+    │   └── schemas.py
+    ├── routers/
+    │   ├── public.py
+    │   └── admin.py
+    ├── importer/           ← stub only, NotImplementedError
+    ├── ranking/            ← stub only, NotImplementedError
+    └── pdf_report.py       ← stub only, NotImplementedError
+```
+
+**app/config.py** — Pydantic Settings reading from environment:
+```python
+class Settings(BaseSettings):
+    database_url: str = "sqlite+aiosqlite:///./uhsrcetrank.db"
+    admin_secret: str
+    allowed_origin: str = "http://localhost:3000"
+    ranking_algorithm_version: str = "v1-UNVERIFIED-placeholder"
+    
+    model_config = SettingsConfig(env_file=".env")
+```
+
+**app/database.py** — Async SQLAlchemy engine, session factory, Base, `get_db` dependency.
+
+**app/models/db_models.py** — SQLAlchemy table definitions:
+
+```python
+class Dataset(Base):
+    __tablename__ = "datasets"
+    id: int (PK, autoincrement)
+    cet_group: str          # "UG" or "OTHER"
+    cet_exam: str           # "bsc-nursing", "bpt", etc.
+    version: str            # "UG-2026-v1"
+    source_type: str        # "MARKDOWN" or "PDF"
+    candidate_count: int
+    is_published: bool = False
+    ranking_algorithm_version: str
+    imported_at: datetime
+    published_at: datetime | None
+    validation_report: str | None   # JSON blob of ImportReport
+    notes: str | None
+
+class Candidate(Base):
+    __tablename__ = "candidates"
+    id: int (PK, autoincrement)
+    dataset_id: int (FK → datasets.id)
+    roll_number: str
+    name: str | None
+    cet_score: float | None
+    percentile: float | None
+    dob_raw: str | None
+    dob: date | None
+    category: str | None
+    cet_group: str
+    cet_exam: str
+    merit_position: int | None
+    tie_break_used: str | None
+    
+    # Composite index on (dataset_id, roll_number) — add explicitly
+```
+
+**app/models/schemas.py** — Pydantic models for API responses:
+
+```python
+class CandidateOut(BaseModel): ...
+class DatasetOut(BaseModel): ...
+class RankedCandidateOut(BaseModel):
+    candidate: CandidateOut
+    merit_position: int
+    total_candidates: int
+    candidates_ahead: int
+    tie_break_used: str | None
+    dataset_version: str
+    ranking_disclaimer: str | None  # set when algorithm is UNVERIFIED
+
+class SearchResult(BaseModel):
+    status: Literal["found", "not_found", "unavailable", "error"]
+    data: RankedCandidateOut | None = None
+    message: str | None = None
+```
+
+**app/routers/public.py** — complete implementation:
+- `GET /api/health` → `{"status": "ok"}`
+- `GET /api/datasets/active` → list of published datasets
+- `GET /api/search?roll_no={}&cet_exam={}` → SearchResult JSON
+  - Validate roll_no: non-empty, alphanumeric + hyphens, max 20 chars → 400 if invalid
+  - Validate cet_exam: must be a known value → 400 if not
+  - Query for active (published) dataset for that cet_exam → return unavailable if none
+  - Case-insensitive roll_number lookup → not_found if missing
+  - Return found with full RankedCandidateOut
+
+**app/routers/admin.py** — routes protected by dependency that checks `X-Admin-Secret` header against `settings.admin_secret`, returns 401 if wrong:
+- `POST /admin/datasets/import` — multipart: `cet_exam`, `markdown_file` → return 501 stub
+- `GET /admin/datasets` → all datasets
+- `POST /admin/datasets/{id}/publish` → publish if validation passed, 422 if not
+- `POST /admin/datasets/{id}/unpublish`
+- `DELETE /admin/datasets/{id}` → only if not published
+- `GET /admin/datasets/{id}/validation` → return stored validation_report JSON
+
+**main.py:**
+```python
+app = FastAPI(title="UHSR CET Rank API", docs_url="/docs")
+app.add_middleware(CORSMiddleware, allow_origins=[settings.allowed_origin], ...)
+app.include_router(public_router, prefix="/api")
+app.include_router(admin_router, prefix="/admin")
+
+@app.on_event("startup")
+async def startup(): await create_tables()
+```
+
+**Dockerfile:**
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+Error responses always JSON: `{"error": "message", "code": "SNAKE_CASE_CODE"}`
+
+Stub importer and ranking with `raise NotImplementedError("Not implemented yet")`. The routing and database layer must be fully functional and compilable.
+
+---
+
+### PROMPT 3 — Markdown Importer
+
+> Use after Prompt 2. The hardest and most important piece.
+
+---
+
+Build `app/importer/` for the UHSR CET Rank Calculator backend. This module takes a raw Markdown string (messy PDF-converted output) and returns a validated list of candidate objects ready for database insertion.
+
+**The real problem you're solving:** UHSR publishes large PDFs. When converted to Markdown, the output is garbage. You must handle all of this:
+- Pipe-delimited tables: `| Sr No | Roll Number | Name | Score | Percentile | DOB | Category |`
+- Repeated table headers on every PDF page (detect and skip them)
+- Rows split across two lines (multiline candidate names)
+- Page numbers embedded mid-table: "Page 3 of 47", lone digit rows
+- Empty cells as `"-"`, `"N/A"`, `"--"`, `"NA"`, `""`
+- Scores with `%` suffix: `"78.50 %"`, `"78.50%"`, `"78.50"`
+- Dates in all formats: `"15/08/2000"`, `"15-08-2000"`, `"15.08.2000"`, `"15 Aug 2000"`, `"15 AUGUST 2000"`
+- Names in ALL CAPS (title-case them)
+- Non-breaking spaces (`\xa0`), zero-width spaces
+- Duplicate roll numbers (same candidate appearing twice)
+- Column count shifting between rows
+- Columns with unexpected names
+
+**Module: `table_extractor.py`**
+
+```python
+@dataclass
+class RawTable:
+    headers: list[str]
+    rows: list[list[str]]
+
+class TableExtractor:
+    def extract(self, markdown: str) -> list[RawTable]: ...
+```
+
+Logic:
+1. Split into lines
+2. Detect table lines: line matches `^\|.*\|$`
+3. Separator lines `^\|[-:| ]+\|$` — skip
+4. Group consecutive table lines into blocks
+5. Parse cells: split on `|`, strip whitespace, replace `\xa0` and zero-width chars with space, strip again
+6. Detect repeated header rows: if a data row matches the header values (case-insensitive), skip it
+7. Multiline row merging: if a row has significantly fewer cells than the header (< header_count - 2), attempt to merge it with the next line before parsing
+8. Strip page-number rows: matches `^Page \d+ of \d+$` or is a lone integer
+
+**Module: `candidate_normalizer.py`**
+
+```python
+from enum import Enum
+
+class KnownField(Enum):
+    SERIAL_NO = "serial_no"
+    ROLL_NUMBER = "roll_number"
+    NAME = "name"
+    CET_SCORE = "cet_score"
+    PERCENTILE = "percentile"
+    DOB = "dob"
+    CATEGORY = "category"
+    CET_EXAM = "cet_exam"
+    UNKNOWN = "unknown"
+
+@dataclass
+class NormalizeResult:
+    success: bool
+    candidate: Candidate | None
+    reason: str | None
+    warnings: list[str]
+
+class CandidateNormalizer:
+    def map_headers(self, headers: list[str]) -> list[KnownField]: ...
+    def normalize_row(self, row: dict[KnownField, str], cet_exam: str, cet_group: str) -> NormalizeResult: ...
+```
+
+`map_headers`: fuzzy lowercase matching against these aliases:
+```python
+FIELD_ALIASES = {
+    KnownField.ROLL_NUMBER: ["roll number", "roll no", "roll no.", "cet roll number", "cet roll no", "cet roll no."],
+    KnownField.NAME: ["name", "candidate name", "applicant name"],
+    KnownField.CET_SCORE: ["cet score", "score", "cet %", "cet percentage", "cet marks"],
+    KnownField.PERCENTILE: ["percentile", "cet percentile", "cet percentile score"],
+    KnownField.DOB: ["dob", "date of birth", "d.o.b", "d.o.b.", "birth date"],
+    KnownField.CATEGORY: ["category", "cat", "caste"],
+    KnownField.CET_EXAM: ["course", "exam", "cet exam", "cet", "examination"],
+    KnownField.SERIAL_NO: ["sr no", "sr. no", "sr. no.", "s.no", "serial", "sno"],
+}
+```
+
+`normalize_row` rules:
+- `roll_number`: required, strip + uppercase. If blank → NormalizeResult(success=False, reason="Missing roll number")
+- `name`: strip. If ALL CAPS → title-case it. Allow null (add warning, don't fail)
+- `cet_score`: strip, remove `%`, `%` (unicode percent), spaces. Parse as float. None if null-like (`-`, `n/a`, `na`, `--`, ``)
+- `percentile`: same as score. If parsed value outside 0..100 range, keep it but add warning
+- `dob`: try these in order using `dateutil.parser.parse` with `dayfirst=True`, fall back to manual `re` parsing for `dd/MM/yyyy`, `dd-MM-yyyy`, `dd.MM.yyyy`. None if unparseable — add warning, do NOT fail
+- `category`: strip + uppercase. None if blank
+
+**Module: `validation_engine.py`**
+
+```python
+@dataclass
+class ImportReport:
+    total_rows_read: int
+    successful_candidates: int
+    failed_rows: int
+    duplicate_roll_numbers: list[str]
+    warnings: list[dict]     # {"roll_number": str|None, "message": str}
+    errors: list[dict]
+    is_passed: bool
+
+class ValidationEngine:
+    def validate(self, candidates: list[Candidate], failed_rows: list[dict]) -> ImportReport: ...
+```
+
+Blocking errors (`is_passed = False`):
+- `successful_candidates < 100`: parsing almost certainly failed entirely
+- Duplicate roll numbers exceed 5% of total
+- Both `cet_score` and `percentile` are null in more than 50% of candidates (ranking impossible)
+
+Warnings (non-blocking):
+- Any unparseable DOB
+- Score or percentile out of 0..100 range
+- Missing name
+- Both score and percentile null on a single record
+
+**Module: `markdown_importer.py`** — top-level entry point:
+
+```python
+@dataclass
+class ImportResult:
+    candidates: list[Candidate]
+    report: ImportReport
+
+class MarkdownImporter:
+    def __init__(self, cet_exam: str, cet_group: str): ...
+    def import_markdown(self, markdown: str) -> ImportResult: ...
+```
+
+**Tests: `tests/test_importer.py`** using pytest:
+
+Write tests for:
+1. Repeated header detection — insert a header row mid-table, assert it's skipped
+2. Multiline row merging — a row split across two lines merges into one candidate
+3. All date formats (`15/08/2000`, `15-08-2000`, `15.08.2000`, `15 Aug 2000`) all parse to the same date
+4. Score with `%` sign parses correctly
+5. Null-like values (`"-"`, `"N/A"`, `""`) produce None
+6. Duplicate roll numbers are detected and reported
+7. Fixture: a 5-row realistic messy Markdown table → assert exact Candidate objects
+
+---
+
+### PROMPT 4 — Ranking Engine
+
+> Use after Prompt 3.
+
+---
+
+Build `app/ranking/` for the UHSR CET Rank Calculator.
+
+**Critical constraint: do NOT hardcode the UHSR algorithm.** The ranking must be configurable because the actual hierarchy must be verified from the 2026 published data. Build a comparator chain that can be reconfigured with a one-line change.
+
+**`ranking_config.py`:**
+
+```python
+from enum import Enum
+from dataclasses import dataclass
+
+class RankingCriterion(Enum):
+    PERCENTILE_DESC = "percentile_desc"         # higher percentile = better
+    SCORE_DESC = "score_desc"                   # higher score = better  
+    DOB_ASC = "dob_asc"                         # older candidate gets priority
+    DOB_DESC = "dob_desc"                       # younger candidate gets priority
+    ROLL_NUMBER_ASC = "roll_number_asc"         # stable last-resort fallback
+
+@dataclass
+class RankingConfig:
+    criteria: list[RankingCriterion]
+    version: str    # e.g. "v1-UNVERIFIED-placeholder", "v1-verified-2026"
+
+# Default config — MUST be updated once actual UHSR rules are confirmed
+PLACEHOLDER_CONFIG = RankingConfig(
+    criteria=[
+        RankingCriterion.PERCENTILE_DESC,
+        RankingCriterion.SCORE_DESC,
+        RankingCriterion.DOB_ASC,           # UNVERIFIED — update from actual data
+        RankingCriterion.ROLL_NUMBER_ASC,   # always last for determinism
+    ],
+    version="v1-UNVERIFIED-placeholder"
+)
+```
+
+**`ranking_engine.py`:**
+
+```python
+@dataclass
+class RankedCandidate:
+    candidate: Candidate
+    merit_position: int
+    total_candidates: int
+    candidates_ahead: int
+    tie_break_used: str | None   # e.g. "dob_asc", "UNRESOLVED_TIE", None
+
+@dataclass
+class RankingResult:
+    ranked_candidates: list[RankedCandidate]
+    unresolved_ties: list[tuple[str, str]]  # pairs of roll numbers
+    config_version: str
+    ranking_disclaimer: str | None
+
+class RankingEngine:
+    def __init__(self, config: RankingConfig): ...
+    def rank(self, candidates: list[Candidate]) -> RankingResult: ...
+    def _build_sort_key(self, candidate: Candidate) -> tuple: ...
+    def _resolving_criterion(self, a: Candidate, b: Candidate) -> str | None: ...
+```
+
+Position assignment:
+- 1-indexed
+- Candidates with identical values across ALL criteria → same position, `tie_break_used = "UNRESOLVED_TIE"`, added to `unresolved_ties`
+- `ROLL_NUMBER_ASC` as final criterion ensures deterministic output even when higher criteria tie
+- When `config.version` contains `"UNVERIFIED"`, set `ranking_disclaimer = "This rank uses a placeholder algorithm that has not been verified against the actual UHSR 2026 published ordering. It may not be accurate."`
+
+**`RankingVerifier` class** — reverse-engineering tool:
+
+```python
+@dataclass
+class RankingDisagreement:
+    roll_number: str
+    our_position: int
+    uhsr_position: int
+    delta: int
+
+@dataclass  
+class VerificationReport:
+    total_candidates: int
+    exact_matches: int
+    disagreements: list[RankingDisagreement]
+    agreement_percentage: float
+
+class RankingVerifier:
+    def compare_against_published(
+        self,
+        our_ranking: list[RankedCandidate],
+        uhsr_published_order: list[str]   # roll numbers in UHSR's order
+    ) -> VerificationReport: ...
+```
+
+This is the tool you run after import to calibrate the algorithm: try different criterion orderings until `agreement_percentage == 100.0`.
+
+**`tests/test_ranking.py`:**
+1. Sort 5 candidates by percentile desc → assert positions 1..5
+2. Equal percentile → score breaks tie
+3. Equal percentile + score → DOB breaks tie (per config)
+4. All values equal → UNRESOLVED_TIE on both candidates, same position
+5. Determinism check: run rank() twice on same input, assert identical output
+6. UNVERIFIED config → ranking_disclaimer is not None
+
+---
+
+### PROMPT 5 — Public API + Frontend Integration
+
+> Use after Prompts 2, 3, 4.
+
+---
+
+Complete the public integration for UHSR CET Rank Calculator.
+
+**Backend: complete `app/routers/public.py`**
+
+`GET /api/search?roll_no={}&cet_exam={}`:
+1. Validate `roll_no`: non-empty, strip, uppercase, alphanumeric + hyphens, max 20 chars → 400 if invalid
+2. Validate `cet_exam` against `KNOWN_EXAMS` list → 400 if unknown
+3. Query DB for published dataset with matching `cet_exam` → `SearchResult(status="unavailable")` if none
+4. Query `candidates` table: `WHERE dataset_id = ? AND UPPER(TRIM(roll_number)) = ?`
+5. Not found → `SearchResult(status="not_found")`
+6. Found → assemble `RankedCandidateOut` including `ranking_disclaimer` if config is UNVERIFIED
+7. Add `Cache-Control: public, max-age=3600` header on found responses
+
+`GET /api/datasets/active`: return published datasets with `is_active: true` for each
+
+Add DB index via SQLAlchemy: `Index("ix_candidates_dataset_roll", "dataset_id", "roll_number")`
+
+**Frontend: `js/config.js`**
+
+```javascript
+const CONFIG = {
+  apiBase: "https://your-backend.railway.app",  // update for prod
+  cetExams: [
+    { group: "UG",    value: "bsc-nursing",    label: "B.Sc Nursing" },
+    { group: "UG",    value: "bpt",            label: "BPT" },
+    { group: "UG",    value: "paramedical",    label: "Paramedical" },
+    { group: "OTHER", value: "pb-bsc-nursing", label: "Post Basic B.Sc Nursing" },
+    { group: "OTHER", value: "msc-nursing",    label: "M.Sc Nursing" },
+    { group: "OTHER", value: "mpt",            label: "MPT" },
+    { group: "OTHER", value: "npcc",           label: "NPCC" }
+  ]
+};
+```
+
+**Frontend: `js/search.js`**
+
+On page load:
+1. `GET /api/datasets/active` → check which exams have published data
+2. Populate CET `<select>` — disable `<option>` for exams with no active dataset
+3. If zero active datasets → keep form disabled, show "Result data not yet available" banner inside calculator box
+
+On form submit:
+1. Read and validate `roll_no` (non-empty, alphanumeric)
+2. Button text → "Searching..." (no spinner — keep it government-portal plain)
+3. `fetch(CONFIG.apiBase + '/api/search?roll_no=...&cet_exam=...')`
+4. On result: store JSON in `sessionStorage` keyed by `roll_no + cet_exam`, redirect to `result.html?roll_no=...&cet_exam=...`
+5. On network error: show error message inline — never `alert()`
+
+On `result.html` load:
+1. Parse `roll_no` + `cet_exam` from URL params
+2. Retrieve from `sessionStorage`, or if missing (direct URL visit), re-fetch from API
+3. Populate candidate detail table rows
+4. Set rank number text in the big rank card
+5. "of X candidates" and "X candidates ahead" lines
+6. If `ranking_disclaimer` is present: show it prominently in an orange notice box
+7. "Why this rank?" section: list the ranking criteria from config in human-readable form + which tie-break resolved this candidate's position
+
+**Error messages (display inline, never alert):**
+- `not_found`: "No candidate found with Roll Number {X} in the {label} 2026 dataset. Please check your Roll Number and selected CET."
+- `unavailable`: show the "data not available" banner
+- Network error: "Unable to connect. Please check your connection and try again."
+- Invalid input: "Please enter a valid Roll Number (letters and numbers only)."
+
+---
+
+### PROMPT 6 — Admin Panel
+
+> Use after Prompt 5.
+
+---
+
+Build the admin panel for UHSR CET Rank Calculator.
+
+**`frontend/admin.html`** — not linked from any public page:
+- Same header/footer CSS but with a red-alert banner at top: "⚠ ADMIN PANEL — NOT PUBLIC"
+- Admin secret input (stored in `sessionStorage["admin_secret"]` on submit)
+- Section 1 — Upload Dataset: CET exam selector, Markdown file upload, optional notes, Submit button
+- Section 2 — All Datasets: table with ID | CET | Version | Candidates | Status | Imported | Actions
+  - Actions: "View Validation" | "Publish" (disabled if already published or validation failed) | "Unpublish" | "Delete" (disabled if published)
+- Section 3 — Validation Report: inline display below the table when "View Validation" is clicked — shows total rows, successful, failed, warnings list, errors list, pass/fail badge
+
+All admin API calls include header `X-Admin-Secret: sessionStorage["admin_secret"]`. On 401 → show "Authentication failed" and clear stored secret.
+
+**`frontend/js/admin.js`** — handles all of the above interactions.
+
+**Backend: complete `app/routers/admin.py`**
+
+`POST /admin/datasets/import` (multipart):
+1. Read `cet_exam` field and `markdown_file` upload
+2. Determine `cet_group` from `cet_exam` (UG group: bsc-nursing, bpt, paramedical; OTHER: the rest)
+3. Run `MarkdownImporter(cet_exam, cet_group).import_markdown(file_content)`
+4. Insert all candidates into DB with `is_published=False`
+5. Insert dataset record with `validation_report` = `json.dumps(report_dict)`, `candidate_count` = successful candidates
+6. Return dataset ID + summary of ImportReport
+
+`POST /admin/datasets/{id}/publish`:
+1. Load dataset, check `is_published == False`
+2. Parse stored `validation_report` — check `is_passed == True` → 422 if not
+3. Set `is_published = True`, `published_at = now()`
+4. Unpublish any previously published dataset for the same `cet_exam` (only one active at a time)
+
+`DELETE /admin/datasets/{id}`:
+1. Check `is_published == False` → 422 if published
+2. Delete all candidates where `dataset_id == id`
+3. Delete the dataset record
+
+Auth dependency:
+```python
+async def require_admin(request: Request, settings: Settings = Depends(get_settings)):
+    secret = request.headers.get("X-Admin-Secret")
+    if not secret or secret != settings.admin_secret:
+        raise HTTPException(status_code=401, detail={"error": "Unauthorized", "code": "UNAUTHORIZED"})
+```
+
+---
+
+### PROMPT 7 — PDF Report + Final Polish
+
+> Use last.
+
+---
+
+Complete UHSR CET Rank Calculator with PDF generation and production polish.
+
+**Backend: `app/pdf_report.py`** using reportlab:
+
+`GET /api/report?roll_no={}&cet_exam={}` → returns PDF bytes with headers:
+```
+Content-Type: application/pdf
+Content-Disposition: attachment; filename="UHSR-CET-Rank-Report-{roll_no}.pdf"
+```
+
+PDF page content (all reportlab, no images from UHSR):
+- Title line: "UHSR CET 2026 — Estimated Merit Position Report"  
+- Subtitle: "INDEPENDENT CANDIDATE UTILITY — NOT AN OFFICIAL UHSR DOCUMENT" (red, bold)
+- Horizontal rule
+- Candidate details table: Roll Number | Name | CET Score | Percentile | DOB | Category | CET Exam
+- Large centered section: "Estimated Merit Position", rank number at 28pt bold, "of {total} candidates | {ahead} candidates ahead"
+- Ranking methodology: "Criteria applied: {list}. Tie-break for this candidate: {tie_break_used}."
+- Dataset info: Version | Processed | Published
+- Footer repeated on every page: "UNOFFICIAL — ESTIMATED MERIT POSITION | Generated by uhsrcetrank.pages.dev on {timestamp} | This is NOT an official UHSR scorecard. Use official UHSR result for counselling."
+
+The PDF must have no UHSR/government imagery. No seals. No emblems.
+
+**Frontend: result.html "Generate My Rank Report" button:**
+```javascript
+document.getElementById("generate-report").addEventListener("click", async () => {
+  btn.textContent = "Generating...";
+  const res = await fetch(`${CONFIG.apiBase}/api/report?roll_no=...&cet_exam=...`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
+  btn.textContent = "Generate My Rank Report";
+});
+```
+
+**SEO — index.html `<head>`:**
+```html
+<title>UHSR CET Rank Calculator 2026 — Check Your Merit Position</title>
+<meta name="description" content="Independent calculator for UHSR CET 2026 merit position. Enter your Roll Number to check your estimated rank. Not affiliated with UHSR.">
+<meta name="keywords" content="UHSR CET 2026 rank, UHSR CET merit position, UHSR CET roll number, UHSR B.Sc Nursing rank 2026">
+<meta property="og:title" content="UHSR CET Rank Calculator 2026">
+<meta property="og:description" content="Find your estimated merit position from UHSR CET 2026 published data.">
+<link rel="canonical" href="https://uhsrcetrank.pages.dev/">
+```
+
+**`frontend/robots.txt`:**
+```
+User-agent: *
+Disallow: /admin.html
+Allow: /
+```
+
+**`frontend/sitemap.xml`:** cover `/`, `/faq.html`, `/methodology.html`
+
+**`frontend/_headers` (Cloudflare Pages):**
+```
+/admin.html
+  X-Robots-Tag: noindex
+
+/*.html
+  Cache-Control: public, max-age=3600
+```
+
+**Backend: production hardening in `main.py`:**
+- CORS: in production use `settings.allowed_origin` only, not `*`
+- `Cache-Control: public, max-age=3600` on `/api/search` responses
+- `Cache-Control: no-store` on all `/admin/*` routes
+- All queries parameterized (SQLAlchemy handles this — never use string formatting in queries)
+- DB index on `(dataset_id, roll_number)` — verify it exists
+
+**`railway.json` for one-click Railway deploy:**
+```json
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": { "builder": "DOCKERFILE" },
+  "deploy": {
+    "startCommand": "uvicorn main:app --host 0.0.0.0 --port $PORT",
+    "healthcheckPath": "/api/health"
+  }
+}
+```
+
+**Pre-launch checklist:**
+1. Every public page has the Important Notice box
+2. Link to uhsrcetadmissions.in is on every page
+3. No UHSR/government imagery anywhere
+4. "Estimated Merit Position" label used — never just "Rank"
+5. PDF footer has UNOFFICIAL disclaimer
+6. `/admin.html` is not linked from any public page
+7. `ADMIN_SECRET` is set in Railway env vars, not hardcoded
+8. CORS is restricted to production domain, not `*`
+9. `ranking_disclaimer` appears when algorithm is UNVERIFIED
+
+---
+
+## Deployment — step by step
+
+```bash
+# Frontend → Cloudflare Pages
+# 1. Push frontend/ to a GitHub repo
+# 2. Connect repo to Cloudflare Pages
+# 3. Build command: (none)
+# 4. Output directory: frontend/
+# 5. Domain: uhsrcetrank.pages.dev
+
+# Backend → Railway
+# 1. Push backend/ to GitHub
+# 2. railway login && railway link
+# 3. Set env vars:
+railway variables set ADMIN_SECRET=your-secret-here
+railway variables set ALLOWED_ORIGIN=https://uhsrcetrank.pages.dev
+railway variables set DATABASE_URL=sqlite+aiosqlite:///./data/uhsrcetrank.db
+# 4. railway up
+
+# When result data drops:
+# 1. Convert UHSR PDF to Markdown (use pdfplumber in a quick script, or pdf2md)
+# 2. Admin panel → upload Markdown per CET exam
+# 3. Review validation report
+# 4. Run RankingVerifier against UHSR's published ordering
+# 5. Adjust RankingConfig until agreement_percentage == 100%
+# 6. Publish — calculator goes live
+```
+
+---
+
+**Bottom line:** You're well-positioned. The exam was 2 days ago, results typically drop within 2–4 weeks. Build Prompts 1 + 2 this week and have the "Coming Soon" site live. The importer and ranking engine (Prompts 3 + 4) can be built in parallel. When the PDF drops you run the import, verify the algorithm, and publish — no redesign needed.

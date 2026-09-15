@@ -1,0 +1,1 @@
+"""UHSR CET Rank Calculator application package."""
