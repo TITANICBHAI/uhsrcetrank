@@ -61,6 +61,18 @@ a:focus, button:focus, input:focus, select:focus {
 .main-nav a { display: block; padding: 10px 16px; color: var(--white); text-decoration: none; font-size: 0.9rem; border-right: 1px solid var(--blue-light); }
 .main-nav a:hover, .main-nav a[aria-current="page"] { background: var(--blue-mid); }
 .nav-official { margin-left: auto; }
+.nav-toggle {
+  display: none;
+  margin: 8px 12px 8px auto;
+  width: 48px;
+  min-height: 40px;
+  padding: 6px;
+  color: var(--white);
+  background: transparent;
+  border: 1px solid var(--blue-light);
+  font-size: 1.35rem;
+  line-height: 1;
+}
 .page-content { padding: 18px 24px 30px; }
 .notice {
   margin: 0 0 18px;
@@ -73,8 +85,17 @@ a:focus, button:focus, input:focus, select:focus {
 .notice p { margin: 0 0 8px; font-size: 0.9rem; }
 .notice p:last-child { margin-bottom: 0; }
 .notice a { font-weight: 700; }
-.portal-grid { display: grid; grid-template-columns: minmax(190px, 0.7fr) minmax(0, 2fr) minmax(210px, 0.8fr); gap: 16px; align-items: start; }
+.portal-grid {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.7fr) minmax(0, 2fr) minmax(210px, 0.8fr);
+  grid-template-areas: "left center right";
+  gap: 16px;
+  align-items: start;
+}
 .portal-grid > * { min-width: 0; }
+.left-rail { grid-area: left; }
+.center-column { grid-area: center; }
+.right-rail { grid-area: right; }
 .portal-section { margin-bottom: 16px; border: 1px solid var(--border); background: var(--white); }
 .section-heading {
   margin: 0;
@@ -117,6 +138,19 @@ tbody tr:nth-child(even) { background: var(--gray-bg); }
 .page-title { margin: 0 0 14px; color: var(--blue-dark); font-size: clamp(1.35rem, 3vw, 1.9rem); }
 .page-intro { margin-top: 0; }
 .faq-table td:first-child { width: 30%; font-weight: 700; color: var(--blue-dark); }
+.faq-list { display: grid; gap: 10px; }
+.faq-item { border: 1px solid var(--border); background: var(--white); }
+.faq-item summary {
+  cursor: pointer;
+  padding: 13px 14px;
+  color: var(--blue-dark);
+  font-weight: 700;
+  list-style-position: inside;
+}
+.faq-item summary::marker { color: var(--orange); }
+.faq-item[open] summary { background: var(--blue-light); }
+.faq-answer { padding: 0 14px 14px 32px; }
+.faq-answer p { margin-bottom: 0; }
 .prose p { max-width: 78ch; }
 .prose ul { padding-left: 20px; }
 .callout { padding: 12px; border: 1px solid var(--blue-mid); background: var(--blue-light); }
@@ -143,10 +177,14 @@ tbody tr:nth-child(even) { background: var(--gray-bg); }
   .site-header { align-items: flex-start; padding: 15px 14px; }
   .brand-mark { width: 42px; height: 42px; flex-basis: 42px; font-size: 0.65rem; }
   .header-context { display: none; }
-  .main-nav ul, .nav-official { margin-left: 0; }
+  .nav-toggle { display: block; }
+  .main-nav ul { display: none; }
+  .main-nav.nav-open ul { display: block; }
   .main-nav a { width: 100%; border-right: 0; border-bottom: 1px solid var(--blue-light); }
+  .nav-official { margin-left: 0; }
   .page-content { padding: 14px 12px 22px; }
   .portal-grid, .result-grid { grid-template-columns: 1fr; }
+  .portal-grid { grid-template-areas: "center" "left" "right"; }
   .form-grid { grid-template-columns: 1fr; }
   .form-grid button { width: 100%; }
   .section-body { padding: 12px; }
