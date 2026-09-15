@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly repository_url="https://github.com/TITANICBHAI/uhsr-cet-ranker-2026.git"
+readonly repository_url="https://github.com/TITANICBHAI/uhsrcetrank.git"
 readonly branch="${GITHUB_BRANCH:-main}"
 readonly remote_name="github"
 
