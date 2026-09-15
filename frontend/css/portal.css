@@ -53,7 +53,7 @@ a:focus, button:focus, input:focus, select:focus {
   letter-spacing: 0.08em;
 }
 .brand-copy { min-width: 0; }
-.brand-copy h1 { margin: 0; color: var(--blue-dark); font-size: clamp(1.25rem, 3vw, 1.8rem); line-height: 1.15; }
+.brand-copy h1, .brand-copy .brand-title { margin: 0; color: var(--blue-dark); font-size: clamp(1.25rem, 3vw, 1.8rem); line-height: 1.15; }
 .brand-copy p { margin: 5px 0 0; color: var(--text-muted); font-size: 0.86rem; }
 .header-context { margin-left: auto; align-self: center; color: var(--red-alert); font-size: 1.1rem; text-align: right; white-space: nowrap; }
 .main-nav { background: var(--blue-dark); }
@@ -219,7 +219,7 @@ tbody tr:nth-child(even) { background: var(--gray-bg); }
   .rank-number { font-size: 2.7rem; }
 }
 @media (max-width: 360px) {
-  .brand-copy h1 { font-size: 1.12rem; }
+  .brand-copy h1, .brand-copy .brand-title { font-size: 1.12rem; }
   .brand-copy p { font-size: 0.75rem; }
   th, td { padding: 8px 7px; }
 }
