@@ -14,6 +14,9 @@ class RankingCriterion(str, Enum):
 class RankingConfig:
     criteria: list[RankingCriterion]
     version: str = "v1-UNVERIFIED-placeholder"
+    position_policy: str = "competition"
+    missing_policy: str = "last"
+    tie_policy: str = "block_if_unresolved"
 
 
 PLACEHOLDER_CONFIG = RankingConfig(

@@ -1,5 +1,5 @@
 const CONFIG = {
-  apiBase: window.UHSR_API_BASE || "http://localhost:8000",
+  apiBase: window.UHSR_API_BASE || "",
   officialUrl: "https://www.uhsrcetadmissions.in/",
   cetExams: [
     { group: "UG", value: "bsc-nursing", label: "B.Sc Nursing" },

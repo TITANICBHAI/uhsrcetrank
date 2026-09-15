@@ -27,6 +27,13 @@ class DatasetOut(BaseModel):
     is_published: bool
 
 
+class ActiveDatasetOut(BaseModel):
+    cet_exam: str
+    label: str
+    academic_year: str
+    dataset_version: str
+
+
 class RankedCandidateOut(BaseModel):
     candidate: CandidateOut
     merit_position: int

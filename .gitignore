@@ -9,3 +9,4 @@ backend/data/
 activation/
 attached_assets/
 *.log
+.pythonlibs/

@@ -17,7 +17,11 @@
     const form = $("search-form");
     if (!form) return;
     ["cet_exam", "roll_no", "search-button"].forEach((id) => { if ($(id)) $(id).disabled = unavailable; });
-    if (unavailable) showMessage("Result data for all CET examinations has not been processed and published yet.", "");
+    if (unavailable) {
+      showMessage("Result data for all CET examinations has not been processed and published yet.", "");
+    } else {
+      showMessage("", "");
+    }
   };
 
   async function loadActiveDatasets() {
@@ -68,7 +72,9 @@
       const url = CONFIG.apiBase + "/api/search?roll_no=" + encodeURIComponent(roll) + "&cet_exam=" + encodeURIComponent(exam);
       const response = await fetch(url);
       const result = await response.json();
-      sessionStorage.setItem("uhsr-search-" + roll + "-" + exam, JSON.stringify(result));
+      if (result.status === "found") {
+        sessionStorage.setItem("uhsr-search-" + roll + "-" + exam, JSON.stringify(result));
+      }
       window.location.href = "result.html?roll_no=" + encodeURIComponent(roll) + "&cet_exam=" + encodeURIComponent(exam);
     } catch (error) {
       showMessage("Unable to connect right now. Check your connection and try again.", "error");
