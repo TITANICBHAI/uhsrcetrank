@@ -42,6 +42,21 @@ def build_dataset(args: argparse.Namespace, content: bytes) -> tuple[dict, dict]
     label, group = EXAMS[args.exam]
     imported = MarkdownImporter(args.exam, group).import_markdown(content.decode("utf-8"))
     config = PLACEHOLDER_CONFIG
+    if args.ranking_mode == "ENGINE":
+        config = RankingConfig(
+            criteria=[
+                RankingCriterion.PERCENTILE_DESC,
+                RankingCriterion.SCORE_DESC,
+                (
+                    RankingCriterion.DOB_DESC
+                    if args.dob_order == "desc"
+                    else RankingCriterion.DOB_ASC
+                ),
+            ],
+            version=args.ranking_version,
+            position_policy="competition",
+            tie_policy="block_if_unresolved",
+        )
     ranking_mode = args.ranking_mode
     if imported.candidates and all(item.published_order is not None for item in imported.candidates):
         ranking_mode = "PRECOMPUTED"
@@ -126,6 +141,12 @@ def main() -> int:
     parser.add_argument("--version")
     parser.add_argument("--ranking-mode", choices=("PRECOMPUTED", "ENGINE"), default="ENGINE")
     parser.add_argument("--ranking-version", default="UNVERIFIED-local-config")
+    parser.add_argument(
+        "--dob-order",
+        choices=("asc", "desc"),
+        default="asc",
+        help="DOB tie-break direction for ENGINE mode; desc gives younger candidates priority",
+    )
     parser.add_argument("--source-reference", default="")
     parser.add_argument("--notes", default="")
     args = parser.parse_args()
