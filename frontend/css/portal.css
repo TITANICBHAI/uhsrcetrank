@@ -74,6 +74,29 @@ a:focus, button:focus, input:focus, select:focus {
   line-height: 1;
 }
 .page-content { padding: 18px 24px 30px; }
+.breadcrumbs {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.breadcrumbs li {
+  display: inline-flex;
+  align-items: center;
+}
+.breadcrumbs li + li::before {
+  margin: 0 9px;
+  color: var(--text-muted);
+  content: "/";
+}
+.breadcrumbs a { font-weight: 700; }
 .notice {
   margin: 0 0 18px;
   padding: 13px 15px;

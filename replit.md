@@ -18,7 +18,7 @@ The local preview intentionally starts with the calculator unavailable until a r
 Use the `Push workspace to GitHub` workflow to commit and push the complete workspace to:
 
 ```text
-https://github.com/TITANICBHAI/uhsr-cet-ranker-2026
+https://github.com/TITANICBHAI/uhsrcetrank
 ```
 
 The workflow reads `GITHUB_PERSONAL_ACCESS_TOKEN` from Replit Secrets. The token is never written to the Git remote URL, source files, or logs. The committed helper is `scripts/push_to_github.sh`; keeping that script in the repository makes the push action available after a future GitHub import.
@@ -60,7 +60,7 @@ Deployment order:
 4. Deploy `worker/` with `npx wrangler deploy`.
 5. Set the Worker public HTTPS URL in `frontend/js/config.js` as `apiBase`.
 6. Push the frontend change to GitHub.
-7. In Cloudflare: **Workers & Pages → Create application → Pages → Connect to Git → GitHub**, select `TITANICBHAI/uhsr-cet-ranker-2026`, and set:
+7. In Cloudflare: **Workers & Pages → Create application → Pages → Connect to Git → GitHub**, select `TITANICBHAI/uhsrcetrank`, and set:
    - Production branch: `main`
    - Build command: leave blank
    - Build output directory: `frontend`
