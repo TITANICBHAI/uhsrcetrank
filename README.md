@@ -31,7 +31,7 @@ The public site starts in the truthful unavailable state. No synthetic dataset i
 
 ## Deployment shape
 
-Deploy `frontend/` as a static site and `backend/` as a separate FastAPI service. Set `ADMIN_SECRET`, `DATABASE_URL`, and `ALLOWED_ORIGIN` in the host's secret/environment configuration. Never commit them.
+Deploy `frontend/` as a static site at `https://uhsrcetresult.pages.dev` and `backend/` as a separate FastAPI service. Set `ADMIN_SECRET`, `DATABASE_URL`, and `ALLOWED_ORIGIN=https://uhsrcetresult.pages.dev` in the backend host's secret/environment configuration. Never commit them. After the backend has a public HTTPS URL, set that URL as `apiBase` in `frontend/js/config.js` before the final frontend publish.
 
 The GitHub Actions workflow runs on pushes and pull requests. It performs Python compilation and frontend integrity checks without needing a secret. The repository itself is published with the secure GitHub token workflow from the Replit workspace; the token is never written into this repository.
 

@@ -37,6 +37,10 @@
     });
     try {
       const response = await fetch(CONFIG.apiBase + "/api/datasets/active");
+      if (response.status === 404) {
+        setUnavailable(true);
+        return [];
+      }
       if (!response.ok) throw new Error("active datasets request failed");
       const active = await response.json();
       active.forEach((dataset) => {
