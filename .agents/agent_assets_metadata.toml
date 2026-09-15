@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "hdEXrSyI2LLF4EWKfJzGI"
+uri = "file://activation/converted/uhsr-cet-ug-result-2026.md"
+type = "text"
+title = "UHSR CET 2026 UG result Markdown"
+description = "Extracted from the supplied 678-page PDF: 18,967 roll-number-wise records. Source list numbers are preserved but are not treated as merit ranks. Review before importing into D1."
+logical_id = "59e61108-9f10-44e1-96f9-e326c1d96487"
+content_hash = "sha256:3b4012cf41a763fe61ae4cde48da10b02e6b5f3d95444400831913c666f9a634"
+size = 1340491
+mtime_ms = 1789488738045
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:e55e4dd9-ef8c-4b18-9d3d-21bb2cf8128e/59e61108-9f10-44e1-96f9-e326c1d96487/3a4ce0ad-6844-4c5e-9558-d928cff9e7bc"
+storage_version_token = "1789488796508730"
+content_type = "text/markdown"
