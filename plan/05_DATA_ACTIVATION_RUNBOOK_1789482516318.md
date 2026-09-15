@@ -51,17 +51,25 @@ Inspect at least:
 
 Save the conversion command and tool version in `notes/`.
 
-## 3. Import one exam at a time
+## 3. Process and import one exam at a time
 
 For each exam:
 
-1. Select the exact CET exam in the admin panel.
-2. Upload the Markdown.
-3. Confirm the source reference and notes.
-4. Wait for the import report.
-5. Download or preserve the validation report.
-6. Inspect total rows, successful rows, failures, warnings, and duplicates.
-7. Open representative candidate records.
+1. Select the exact CET exam and ranking mode.
+2. Run the local exporter from `backend/`:
+
+   ```bash
+   python export_d1.py --exam bsc-nursing --input ../activation/converted/source.md \
+     --output ../activation/reports/bsc-nursing.sql \
+     --json-output ../activation/reports/bsc-nursing.json \
+     --ranking-mode PRECOMPUTED --ranking-version UG-2026
+   ```
+
+3. Confirm the source reference, version, and notes in the generated report.
+4. Preserve the validation JSON and inspect total rows, failures, warnings, and duplicates.
+5. Stop if the exporter exits non-zero; it does not produce a safe production import for failed validation.
+6. Apply `worker/schema.sql` to D1 and import the reviewed SQL with Wrangler.
+7. Inspect the dataset through protected Worker admin actions.
 8. Keep the dataset unpublished.
 
 Never combine two exams into one dataset just because their tables look similar.
@@ -91,7 +99,7 @@ Do not “fix” a source value by intuition. Preserve the raw value and record 
 
 Use this priority:
 
-1. If the published document includes an official merit serial/order, capture it and use published-order mode.
+1. If the published document includes an official merit serial/order or rank/position column, capture it and use precomputed published-order mode.
 2. If the source includes an explicit rule, record the exact rule and its source page/section.
 3. If neither exists, compare plausible configurable orderings against the published candidate sequence.
 4. If the ordering cannot be established reliably, keep the calculator unavailable for that exam.
@@ -128,6 +136,7 @@ Publish only when all are true:
 - the imported dataset is complete enough to use;
 - conflicting duplicates are resolved;
 - required ranking inputs are present;
+- every candidate has a resolved merit position;
 - ordering is published or verified;
 - the public display fields have been reviewed;
 - manual sample lookups match the source;
@@ -154,7 +163,7 @@ Check:
 - the disclaimer is present when the algorithm is unverified;
 - no admin diagnostics appear publicly;
 - official-result link works;
-- PDF report matches the page and says unofficial.
+ - browser print/save report matches the page and says unofficial.
 
 ## 9. Rollback
 

@@ -43,6 +43,7 @@ class Candidate(Base):
     dob_raw: Mapped[str | None] = mapped_column(String(40), nullable=True)
     dob: Mapped[date | None] = mapped_column(Date, nullable=True)
     category: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    course: Mapped[str | None] = mapped_column(String(120), nullable=True)
     extra_fields_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     merit_position: Mapped[int | None] = mapped_column(Integer, nullable=True)
     tie_break_used: Mapped[str | None] = mapped_column(String(80), nullable=True)

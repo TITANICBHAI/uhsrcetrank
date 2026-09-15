@@ -92,6 +92,18 @@ async def import_dataset(
             })
         candidate.merit_position = result.merit_position
         candidate.tie_break_used = result.tie_break_used
+    unresolved = [
+        candidate.source_row_number
+        for candidate in imported.candidates
+        if candidate.merit_position is None
+    ]
+    if unresolved:
+        imported.report.setdefault("blocking_errors", []).append({
+            "reason": "Every candidate must have a resolved merit position before publication",
+            "source_rows": unresolved,
+        })
+        imported.report["is_passed"] = False
+        imported.report["status"] = "FAIL"
     imported.report["ranking"] = {
         "version": ranking.config_version,
         "criteria": [criterion.value for criterion in ranking_config.criteria],
@@ -127,6 +139,7 @@ async def import_dataset(
             dob_raw=item.dob_raw,
             dob=item.dob,
             category=item.category,
+            course=(item.extra_fields or {}).get("course"),
             extra_fields_json=json.dumps(item.extra_fields or {}),
             merit_position=item.merit_position,
             tie_break_used=item.tie_break_used,

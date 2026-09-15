@@ -164,6 +164,10 @@ tbody tr:nth-child(even) { background: var(--gray-bg); }
 .result-actions button, .result-actions a { width: auto; }
 .result-actions a { display: inline-block; padding: 10px 12px; color: var(--blue-dark); border: 1px solid var(--blue-dark); text-decoration: none; }
 .result-actions a:hover { color: var(--white); background: var(--blue-dark); }
+.pagination-actions { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
+.pagination-actions button { width: auto; min-width: 90px; }
+.nearby-self { background: var(--blue-light) !important; font-weight: 700; }
+.empty-table { color: var(--text-muted); text-align: center; }
 .criteria-list { margin: 0; padding-left: 18px; }
 .admin-alert { color: var(--white); background: var(--red-alert); border: 1px solid var(--red-alert); padding: 12px; margin-bottom: 15px; font-weight: 700; }
 .admin-form { display: grid; gap: 12px; }

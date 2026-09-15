@@ -106,7 +106,7 @@ class CandidateNormalizer:
             "roll number", "roll no", "roll", "registration number", "registration no",
             "name", "candidate name", "student name", "score", "cet score", "marks",
             "percentile", "percentile score", "dob", "date of birth", "birth date",
-            "category", "rank", "merit position", "serial no", "serial number",
+            "category", "rank", "position", "merit position", "serial no", "serial number",
             "sr no", "s no", "sr no",
         }
         extras = {
@@ -126,6 +126,6 @@ class CandidateNormalizer:
             dob_raw=dob_raw,
             dob=dob,
             category=clean(_find(row, {"category"})) or None,
-            published_order=_integer(_find(row, {"merit position", "serial no", "serial number", "sr no", "s no"})),
+            published_order=_integer(_find(row, {"rank", "position", "merit position", "serial no", "serial number", "sr no", "s no"})),
             extra_fields=extras,
         )

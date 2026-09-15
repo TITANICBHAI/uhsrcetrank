@@ -1,0 +1,17 @@
+name = "uhsr-cet-ranker-api"
+main = "src/index.js"
+compatibility_date = "2026-09-15"
+
+# Create the database once with:
+#   npx wrangler d1 create uhsr-cet-ranker
+# Then replace database_id below with the returned id.
+[[d1_databases]]
+binding = "DB"
+database_name = "uhsr-cet-ranker"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[vars]
+ALLOWED_ORIGIN = "https://uhsrcetresult.pages.dev"
+
+# Set this as a secret; never put the value in this file:
+#   npx wrangler secret put ADMIN_SECRET
