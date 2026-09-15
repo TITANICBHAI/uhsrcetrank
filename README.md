@@ -8,6 +8,9 @@ This repository intentionally does **not** claim affiliation with UHSR, the Depa
 
 - `frontend/` — plain HTML5, CSS3, and vanilla JavaScript; suitable for Cloudflare Pages
 - `backend/` — local-only Python 3.12 importer, validation system, and reusable ranking engine
+- `source/` — reviewed source Markdown and the generated ranked Markdown dataset
+- `frontend/data/` — copies of both Markdown datasets shipped with the static site
+- `scripts/` — reproducible PDF-to-Markdown and Markdown-to-frontend-data scripts
 - `worker/` — Cloudflare Worker API and D1 schema for published data
 - `plan/` — the supplied planning pack and source notes
 
@@ -32,6 +35,8 @@ The public site starts in the truthful unavailable state. No synthetic dataset i
 
 ## Cloudflare production path
 
+See `CLOUDFLARE_DEPLOYMENT_GUIDE.md` for the direct Markdown workflow, Cloudflare Pages steps, and optional Worker + D1 deployment.
+
 Production does not depend on the old FastAPI service:
 
 1. Apply `worker/schema.sql` to a Cloudflare D1 database.
@@ -39,7 +44,7 @@ Production does not depend on the old FastAPI service:
 
    ```bash
    cd backend
-   python export_d1.py --exam bsc-nursing --input ../source.md \
+   python export_d1.py --exam bsc-nursing --input ../source/cet-2026-ug-source.md \
      --output ../worker/dataset.sql --json-output ../worker/dataset.json \
      --ranking-mode PRECOMPUTED --ranking-version UG-2026
    ```

@@ -10,7 +10,10 @@ from decimal import Decimal, InvalidOperation
 from dateutil import parser as date_parser
 
 
-NULL_VALUES = {"", "-", "--", "—", "n/a", "na", "null", "nil", "not available"}
+NULL_VALUES = {
+    "", "-", "--", "—", "n/a", "na", "null", "nil", "not available",
+    "absent", "ne/umc", "ne", "umc",
+}
 
 
 @dataclass
@@ -105,7 +108,7 @@ class CandidateNormalizer:
         known = {
             "roll number", "roll no", "roll", "registration number", "registration no",
             "name", "candidate name", "student name", "score", "cet score", "marks",
-            "percentile", "percentile score", "dob", "date of birth", "birth date",
+            "percentile", "percentile score", "percentage", "dob", "date of birth", "birth date",
             "category", "rank", "position", "merit position", "serial no", "serial number",
             "sr no", "s no", "sr no",
         }
@@ -122,7 +125,7 @@ class CandidateNormalizer:
             cet_group=cet_group,
             name=clean(_find(row, {"name", "candidate name", "student name"})) or None,
             cet_score=_number(_find(row, {"cet score", "score", "marks"})),
-            percentile=_number(_find(row, {"percentile", "percentile score"})),
+            percentile=_number(_find(row, {"percentile", "percentile score", "percentage"})),
             dob_raw=dob_raw,
             dob=dob,
             category=clean(_find(row, {"category"})) or None,

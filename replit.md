@@ -36,6 +36,20 @@ The public frontend is intended for:
 https://uhsrcetresult.pages.dev
 ```
 
+The reproducible data inputs are `source/cet-2026-ug-source.md` and
+`source/cet-2026-ug-ranked.md`. Regenerate the browser dataset after editing
+the source with:
+
+```bash
+python scripts/rank_markdown.py source/cet-2026-ug-source.md \
+  --ranked-output source/cet-2026-ug-ranked.md \
+  --frontend-output frontend/js/static-data.js \
+  --public-output frontend/data/cet-2026-ug-ranked.md
+```
+
+See `CLOUDFLARE_DEPLOYMENT_GUIDE.md` for the complete Pages and optional
+Worker + D1 deployment steps.
+
 Cloudflare Pages serves only the files in `frontend/`. The production API is `worker/`, backed by Cloudflare D1. `backend/` is retained for local Markdown processing, validation, and the reusable ranking engine; production lookup does not depend on FastAPI.
 
 Deployment order:

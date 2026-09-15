@@ -36,7 +36,7 @@
     staticData && staticData.available_exams.includes(exam)
   );
   const staticDisplayName = () => staticData?.dataset.display_name || "Combined UG Result";
-  const staticRankingMethod = () => "Percentage proxy descending, marks descending, younger DOB first; exact ties share competition positions.";
+  const staticRankingMethod = () => "Percentage descending, marks descending, younger DOB first; exact ties share competition positions.";
   const staticCandidate = (row, exam, own) => ({
     roll_number: row.r,
     name: own ? row.n : abbreviatedName(row.n),
@@ -73,7 +73,7 @@
         ranking_method: staticRankingMethod(),
         calculated_at: "Static GitHub Pages dataset",
         criteria: [
-          "Source Percentage used as an explicitly unverified percentile proxy (descending)",
+          "Source Percentage descending",
           "Marks descending",
           "Younger date of birth first",
           "Exact ties share competition positions",
@@ -367,7 +367,7 @@
       ["Roll Number", candidate.roll_number],
       ["Name", candidate.name],
       ["CET score", candidate.cet_score],
-      ["Percentile proxy (source Percentage)", candidate.percentile],
+      ["Percentage", candidate.percentile],
       ["Date of birth", candidate.dob],
       ["Category", candidate.category],
       ["Estimated merit position", data.merit_position],
