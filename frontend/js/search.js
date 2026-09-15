@@ -106,6 +106,9 @@
           option.textContent = examLabel(dataset.cet_exam) + " — " + dataset.academic_year;
         }
       });
+      select.value = staticExamAvailable("bsc-nursing")
+        ? "bsc-nursing"
+        : (active[0]?.cet_exam || "");
       setUnavailable(false);
       return active;
     }
@@ -124,6 +127,9 @@
           option.textContent = examLabel(dataset.cet_exam) + " — " + dataset.academic_year;
         }
       });
+      select.value = active.some((dataset) => dataset.cet_exam === "bsc-nursing")
+        ? "bsc-nursing"
+        : (active[0]?.cet_exam || "");
       const hasActive = active.length > 0;
       setUnavailable(!hasActive);
       return active;
