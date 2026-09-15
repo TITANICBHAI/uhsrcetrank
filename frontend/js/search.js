@@ -23,6 +23,65 @@
       showMessage("", "");
     }
   };
+  const staticData = window.UHSR_STATIC_DATA || null;
+  const staticIndex = staticData
+    ? new Map(staticData.candidates.map((candidate) => [candidate.r, candidate]))
+    : null;
+  const staticRanked = staticData
+    ? staticData.candidates.slice().sort((left, right) => {
+      return left.m - right.m || left.r.localeCompare(right.r);
+    })
+    : [];
+  const staticExamAvailable = (exam) => Boolean(
+    staticData && staticData.available_exams.includes(exam)
+  );
+  const staticDisplayName = () => staticData?.dataset.display_name || "Combined UG Result";
+  const staticRankingMethod = () => "Percentage proxy descending, marks descending, younger DOB first; exact ties share competition positions.";
+  const staticCandidate = (row, exam, own) => ({
+    roll_number: row.r,
+    name: own ? row.n : abbreviatedName(row.n),
+    cet_score: row.s,
+    percentile: row.p,
+    dob: own ? row.d : undefined,
+    category: own ? (row.g || null) : undefined,
+    cet_exam: exam,
+  });
+  const staticResult = (roll, exam) => {
+    if (!staticExamAvailable(exam)) {
+      return {
+        status: "unavailable",
+        message: "Static data is available only for the combined UG result: B.Sc Nursing, BPT, and Paramedical.",
+      };
+    }
+    const row = staticIndex.get(roll);
+    if (!row) {
+      return {
+        status: "not_found",
+        message: "No candidate was found with this Roll Number in the combined UG result.",
+      };
+    }
+    const position = row.m;
+    return {
+      status: "found",
+      data: {
+        candidate: staticCandidate(row, exam, true),
+        merit_position: position,
+        total_candidates: staticData.dataset.candidate_count,
+        candidates_ahead: position - 1,
+        dataset_version: staticData.dataset.version,
+        ranking_mode: staticData.dataset.ranking_mode,
+        ranking_method: staticRankingMethod(),
+        calculated_at: "Static GitHub Pages dataset",
+        criteria: [
+          "Source Percentage used as an explicitly unverified percentile proxy (descending)",
+          "Marks descending",
+          "Younger date of birth first",
+          "Exact ties share competition positions",
+        ],
+        ranking_disclaimer: staticData.dataset.ranking_disclaimer,
+      },
+    };
+  };
 
   async function loadActiveDatasets() {
     const select = $("cet_exam");
@@ -35,6 +94,21 @@
       option.disabled = true;
       select.appendChild(option);
     });
+    if (staticData) {
+      const active = staticData.available_exams.map((cetExam) => ({
+        cet_exam: cetExam,
+        academic_year: staticData.dataset.academic_year,
+      }));
+      active.forEach((dataset) => {
+        const option = Array.from(select.options).find((item) => item.value === dataset.cet_exam);
+        if (option) {
+          option.disabled = false;
+          option.textContent = examLabel(dataset.cet_exam) + " — " + dataset.academic_year;
+        }
+      });
+      setUnavailable(false);
+      return active;
+    }
     try {
       const response = await fetch(CONFIG.apiBase + "/api/datasets/active");
       if (response.status === 404) {
@@ -73,6 +147,14 @@
     button.textContent = "Searching…";
     showMessage("Searching…", "");
     try {
+      if (staticData) {
+        const result = staticResult(roll, exam);
+        if (result.status === "found") {
+          sessionStorage.setItem("uhsr-search-" + roll + "-" + exam, JSON.stringify(result));
+        }
+        window.location.href = "result.html?roll_no=" + encodeURIComponent(roll) + "&cet_exam=" + encodeURIComponent(exam);
+        return;
+      }
       const url = CONFIG.apiBase + "/api/search?roll_no=" + encodeURIComponent(roll) + "&cet_exam=" + encodeURIComponent(exam);
       const response = await fetch(url);
       const result = await response.json();
@@ -158,6 +240,12 @@
   function displayValue(value) {
     return value === null || value === undefined || value === "" ? "Not published" : String(value);
   }
+  function abbreviatedName(name) {
+    if (!name) return null;
+    const parts = String(name).trim().split(/\s+/);
+    if (parts.length === 1) return parts[0];
+    return parts[0] + " " + parts.slice(1).map((part) => part.charAt(0) + ".").join(" ");
+  }
 
   function tableRow(item) {
     const row = document.createElement("tr");
@@ -185,6 +273,10 @@
   }
 
   async function loadCandidateWindows(exam, position) {
+    if (staticData) {
+      loadStaticCandidateWindows(exam, position);
+      return;
+    }
     const nearbyMessage = $("nearby-message");
     try {
       const nearbyResponse = await fetch(CONFIG.apiBase + "/api/candidates/nearby?cet_exam=" + encodeURIComponent(exam) + "&position=" + encodeURIComponent(position));
@@ -218,6 +310,51 @@
     loadAbove();
   }
 
+  function staticWindowItem(row, position, roll) {
+    return {
+      position: row.m,
+      roll_number: row.r,
+      name: abbreviatedName(row.n),
+      cet_score: row.s,
+      percentile: row.p,
+      is_self: row.r === roll && row.m === position,
+    };
+  }
+
+  function loadStaticCandidateWindows(exam, position) {
+    const params = new URLSearchParams(window.location.search);
+    const roll = (params.get("roll_no") || "").trim().toUpperCase();
+    const nearby = staticRanked
+      .filter((row) => row.m >= position - 3 && row.m <= position + 3)
+      .slice(0, 25)
+      .map((row) => staticWindowItem(row, position, roll));
+    renderRows("nearby-body", nearby, "Nearby candidate data is not available.");
+    const nearbyMessage = $("nearby-message");
+    if (nearbyMessage) nearbyMessage.hidden = true;
+
+    const above = staticRanked
+      .filter((row) => row.m < position)
+      .sort((left, right) => right.m - left.m || right.r.localeCompare(left.r));
+    const state = { page: 1 };
+    const renderAbove = () => {
+      const pageSize = 20;
+      const start = (state.page - 1) * pageSize;
+      const items = above.slice(start, start + pageSize).map((row) => staticWindowItem(row, position, roll));
+      renderRows("above-body", items, "There are no candidates ahead of this position.");
+      setText("above-page", "Page " + state.page);
+      setText("above-summary", above.length + " candidates are ahead of this stored position.");
+      $("above-previous").disabled = state.page <= 1;
+      $("above-next").disabled = start + items.length >= above.length;
+    };
+    if ($("above-previous")) $("above-previous").onclick = () => {
+      if (state.page > 1) { state.page -= 1; renderAbove(); }
+    };
+    if ($("above-next")) $("above-next").onclick = () => {
+      if (state.page * 20 < above.length) { state.page += 1; renderAbove(); }
+    };
+    renderAbove();
+  }
+
   function printReport(data, exam) {
     const candidate = data.candidate || {};
     const popup = window.open("", "_blank", "noopener,noreferrer,width=800,height=900");
@@ -230,7 +367,7 @@
       ["Roll Number", candidate.roll_number],
       ["Name", candidate.name],
       ["CET score", candidate.cet_score],
-      ["Percentile", candidate.percentile],
+      ["Percentile proxy (source Percentage)", candidate.percentile],
       ["Date of birth", candidate.dob],
       ["Category", candidate.category],
       ["Estimated merit position", data.merit_position],
@@ -256,7 +393,9 @@
     let result;
     try { result = JSON.parse(sessionStorage.getItem("uhsr-search-" + roll + "-" + exam) || "null"); } catch (_) { result = null; }
     if (!result) {
-      try {
+      if (staticData) {
+        result = staticResult(roll, exam);
+      } else try {
         const response = await fetch(CONFIG.apiBase + "/api/search?roll_no=" + encodeURIComponent(roll) + "&cet_exam=" + encodeURIComponent(exam));
         result = await response.json();
       } catch (_) {
