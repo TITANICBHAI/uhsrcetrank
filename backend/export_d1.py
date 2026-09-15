@@ -55,7 +55,7 @@ def build_dataset(args: argparse.Namespace, content: bytes) -> tuple[dict, dict]
             ],
             version=args.ranking_version,
             position_policy="competition",
-            tie_policy="block_if_unresolved",
+            tie_policy=args.tie_policy,
         )
     ranking_mode = args.ranking_mode
     if imported.candidates and all(item.published_order is not None for item in imported.candidates):
@@ -146,6 +146,12 @@ def main() -> int:
         choices=("asc", "desc"),
         default="asc",
         help="DOB tie-break direction for ENGINE mode; desc gives younger candidates priority",
+    )
+    parser.add_argument(
+        "--tie-policy",
+        choices=("block_if_unresolved", "allow"),
+        default="block_if_unresolved",
+        help="Whether exact ties block export or share a competition position",
     )
     parser.add_argument("--source-reference", default="")
     parser.add_argument("--notes", default="")

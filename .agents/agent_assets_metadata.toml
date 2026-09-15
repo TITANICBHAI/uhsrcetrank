@@ -14,3 +14,17 @@ mtime_ms = 1789488738045
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:e55e4dd9-ef8c-4b18-9d3d-21bb2cf8128e/59e61108-9f10-44e1-96f9-e326c1d96487/3a4ce0ad-6844-4c5e-9558-d928cff9e7bc"
 storage_version_token = "1789488796508730"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "8iJ1A0ATdjqp6jDgpDAFb"
+uri = "file://activation/converted/uhsr-cet-ug-ranking-proxy-2026.md"
+type = "text"
+title = "UHSR CET 2026 ranking-ready Markdown"
+description = "Ranking-ready copy of the extracted 18,967-record UG result. It uses the source Percentage as an explicitly unverified percentile proxy and documents that exact ties share competition positions."
+logical_id = "d37223cd-baed-4f28-a622-b82361ef2b21"
+content_hash = "sha256:dfcf5a4aa371986b1c4341beb8f235feb14af48760720360870d8ab1c3031312"
+size = 1484215
+mtime_ms = 1789489077867
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:e55e4dd9-ef8c-4b18-9d3d-21bb2cf8128e/d37223cd-baed-4f28-a622-b82361ef2b21/c0f87520-46af-445a-8f0c-e31172cf5da5"
+storage_version_token = "1789489346471334"
+content_type = "text/markdown"

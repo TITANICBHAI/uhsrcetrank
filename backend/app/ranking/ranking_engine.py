@@ -92,7 +92,15 @@ class RankingEngine:
                 merit_position=position,
                 total_candidates=len(ordered),
                 candidates_ahead=(position - 1 if position is not None else None),
-                tie_break_used=None if not same_as_previous else "unresolved tie",
+                tie_break_used=(
+                    None
+                    if not same_as_previous
+                    else (
+                        "shared position"
+                        if self.config.tie_policy == "allow"
+                        else "unresolved tie"
+                    )
+                ),
             ))
 
         disclaimer = None
