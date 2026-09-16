@@ -179,6 +179,12 @@ tbody tr:nth-child(even) { background: var(--gray-bg); }
 .callout { padding: 12px; border: 1px solid var(--blue-mid); background: var(--blue-light); }
 .callout h3 { margin: 0 0 5px; color: var(--blue-dark); font-size: 1rem; }
 .result-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr); gap: 16px; }
+.result-candidate { grid-column: 1; grid-row: 1; }
+.result-rank { grid-column: 2; grid-row: 1; align-self: start; }
+.result-why { grid-column: 1; grid-row: 2; }
+.result-nearby { grid-column: 1; grid-row: 3; }
+.result-above { grid-column: 1; grid-row: 4; }
+.result-meta { grid-column: 2; grid-row: 2 / span 3; align-self: start; }
 .rank-card { padding: 18px 12px; text-align: center; border: 1px solid var(--blue-dark); background: var(--blue-light); }
 .rank-card h2 { margin: 0; color: var(--blue-dark); font-size: 1rem; }
 .rank-number { margin: 8px 0; color: var(--blue-dark); font-size: var(--rank-size); font-weight: 700; line-height: 1; }
@@ -211,6 +217,7 @@ tbody tr:nth-child(even) { background: var(--gray-bg); }
   .nav-official { margin-left: 0; }
   .page-content { padding: 14px 12px 22px; }
   .portal-grid, .result-grid { grid-template-columns: 1fr; }
+  .result-grid > * { grid-column: auto; grid-row: auto; }
   .portal-grid { grid-template-areas: "center" "left" "right"; }
   .form-grid { grid-template-columns: 1fr; }
   .form-grid button { width: 100%; }
