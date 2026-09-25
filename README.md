@@ -2,14 +2,15 @@
 
 An independent candidate utility for looking up UHSR CET 2026 records and displaying an **Estimated Merit Position** only after a real dataset has been imported, validated, and published.
 
-This repository intentionally does **not** claim affiliation with UHSR, the Department of Medical Education and Research, or the Government of Haryana. It does not contain official imagery or real candidate data.
+This repository intentionally does **not** claim affiliation with UHSR, the Department of Medical Education and Research, or the Government of Haryana. The separate B.Sc. Nursing allotment browser reproduces records from the publicly released 2026–27 Round 1 provisional list, including candidate names, roll numbers, dates of birth, CET scores, categories, colleges, and allotment remarks. It preserves the source “Sr. No.” values and does not treat them as ranks.
 
 ## Stack
 
 - `frontend/` — plain HTML5, CSS3, and vanilla JavaScript; suitable for Cloudflare Pages
+- `frontend/nursing-allotments.html` — one-page college switcher and candidate browser for the 2026–27 B.Sc. Nursing Round 1 list
 - `backend/` — local-only Python 3.12 importer, validation system, and reusable ranking engine
-- `source/` — reviewed source Markdown and the generated ranked Markdown dataset
-- `frontend/data/` — copies of both Markdown datasets shipped with the static site
+- `source/` — reviewed source Markdown, including the filtered B.Sc. Nursing Round 1 allotment list, and the generated ranked Markdown dataset
+- `frontend/data/` — the combined UG Markdown datasets and the static B.Sc. Nursing allotment JSON
 - `scripts/` — reproducible PDF-to-Markdown and Markdown-to-frontend-data scripts
 - `worker/` — Cloudflare Worker API and D1 schema for published data
 - `plan/` — the supplied planning pack and source notes
@@ -73,3 +74,5 @@ The GitHub Actions workflow runs on pushes and pull requests. It performs Python
 ## Important data rule
 
 The calculator must remain unavailable for an exam until its source provenance, import validation, ranking semantics, and manual smoke tests have been reviewed by an authorized operator. See `plan/05_DATA_ACTIVATION_RUNBOOK_1789482516318.md`. The first public deployment should remain unavailable until a real dataset is imported, validated, reviewed, and published.
+
+The B.Sc. Nursing allotment browser is a separate read-only view of the published provisional Round 1 list. Its candidate details are served as a static file from `frontend/data/bsc-nursing-allotments-2026-27.json`; use the matching Markdown file in `source/` to review its provenance. It does not calculate a merit position, alter allotment outcomes, or replace the official counselling portal.

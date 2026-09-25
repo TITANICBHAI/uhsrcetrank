@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>B.Sc. Nursing CET-2026 Round 1 Allotments | Independent Candidate Utility</title>
+  <meta name="description" content="Browse Haryana's provisional 2026–27 B.Sc. Nursing CET Round 1 allotments by college. Search candidate records and filter by CET score.">
+  <meta name="author" content="Independent UHSR CET Candidate Utility">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#1a3a6e">
+  <link rel="canonical" href="https://uhsrcetrank.pages.dev/nursing-allotments.html">
+  <meta property="og:title" content="B.Sc. Nursing CET-2026 Round 1 College Allotments">
+  <meta property="og:description" content="An independent browser for the Haryana provisional 2026–27 B.Sc. Nursing allotment list.">
+  <meta property="og:url" content="https://uhsrcetrank.pages.dev/nursing-allotments.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:site_name" content="UHSR CET Candidate Utility">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/portal.css">
+  <link rel="stylesheet" href="css/nursing-allotments.css">
+</head>
+<body>
+<div class="site-shell">
+  <header class="site-header">
+    <div class="brand-mark" aria-hidden="true">CET</div>
+    <div class="brand-copy">
+      <div class="brand-title">UHSR CET Candidate Utility</div>
+      <p>Independent reference view — not affiliated with UHSR</p>
+    </div>
+    <div class="header-context">CET-2026</div>
+  </header>
+  <nav class="main-nav" aria-label="Main navigation">
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-menu" aria-label="Open navigation">Menu</button>
+    <ul id="main-menu">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="nursing-allotments.html" aria-current="page">B.Sc. Nursing Allotments</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li class="nav-official"><a href="https://www.uhsrcetadmissions.in/" target="_blank" rel="noopener">Official UHSR CET Portal</a></li>
+    </ul>
+  </nav>
+  <main class="page-content">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol><li><a href="index.html">Home</a></li><li aria-current="page">B.Sc. Nursing Allotments</li></ol>
+    </nav>
+
+    <section class="allotment-intro" aria-labelledby="allotment-title">
+      <div>
+        <p class="allotment-eyebrow">CET-2026 / provisional Round 1</p>
+        <h1 class="page-title" id="allotment-title">B.Sc. Nursing college allotments</h1>
+        <p class="allotment-intro-copy">
+          Browse the Haryana 2026–27 provisional list by college. Search a candidate or roll number,
+          or narrow the selected college’s list by CET score.
+        </p>
+        <p class="allotment-dataset-summary" id="dataset-summary">Loading candidate list…</p>
+      </div>
+      <aside class="notice allotment-notice" aria-label="Independent reference notice">
+        <h2>Independent browsing view</h2>
+        <p>This page is a reference view of the provisional allotment list, not an official admissions portal or counselling authority.</p>
+        <p>Original <strong>Sr. No.</strong> values are kept as printed. They are not ranks and are not recalculated.</p>
+      </aside>
+    </section>
+
+    <div id="load-message" class="inline-message" role="status" aria-live="polite">Loading the allotment dataset…</div>
+    <section class="allotment-layout" aria-label="College and candidate browser" hidden>
+      <aside class="portal-section allotment-picker" aria-labelledby="college-picker-heading">
+        <h2 class="section-heading" id="college-picker-heading">Select a college</h2>
+        <div class="section-body">
+          <label for="college-search">Search colleges</label>
+          <input id="college-search" type="search" placeholder="Type a college name" autocomplete="off">
+          <p class="allotment-picker-hint" id="college-count">Colleges in this list</p>
+          <div class="college-list" id="college-list" role="listbox" aria-label="Colleges"></div>
+        </div>
+      </aside>
+
+      <section class="allotment-main" aria-labelledby="selected-college">
+        <header class="allotment-selected-heading">
+          <div>
+            <h2 id="selected-college">Select a college</h2>
+            <p>B.Sc. Nursing · provisional Round 1 candidates</p>
+          </div>
+          <div class="allotment-total"><strong id="selected-total">—</strong><span>candidates listed</span></div>
+        </header>
+
+        <div class="allotment-stat-grid" aria-label="Selected college summary">
+          <div class="allotment-stat"><span>College total</span><strong id="stat-total">—</strong></div>
+          <div class="allotment-stat"><span>CET score minimum</span><strong id="stat-min">—</strong></div>
+          <div class="allotment-stat"><span>CET score maximum</span><strong id="stat-max">—</strong></div>
+        </div>
+
+        <section class="allotment-filters" aria-label="Candidate filters">
+          <div class="allotment-filter-search">
+            <label for="candidate-search">Candidate or roll number</label>
+            <input id="candidate-search" type="search" placeholder="Search name or roll number" autocomplete="off">
+          </div>
+          <div>
+            <label for="min-score">CET score from</label>
+            <input id="min-score" type="number" min="0" max="200" placeholder="47">
+          </div>
+          <div>
+            <label for="max-score">CET score to</label>
+            <input id="max-score" type="number" min="0" max="200" placeholder="169">
+          </div>
+          <button class="allotment-reset" id="reset-filters" type="button">Reset filters</button>
+        </section>
+
+        <div class="allotment-results-toolbar">
+          <p id="results-summary" role="status" aria-live="polite"></p>
+          <label class="allotment-page-size" for="page-size">Rows per page
+            <select id="page-size">
+              <option value="25" selected>25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="portal-section allotment-results">
+          <div class="desktop-records table-wrap">
+            <table class="allotment-table">
+              <thead>
+                <tr>
+                  <th scope="col">Sr. No.</th>
+                  <th scope="col">Candidate</th>
+                  <th scope="col">CET score</th>
+                  <th scope="col">Qualifying %</th>
+                  <th scope="col">Date of birth</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Course</th>
+                  <th scope="col">Remark / status</th>
+                </tr>
+              </thead>
+              <tbody id="candidate-rows"></tbody>
+            </table>
+          </div>
+          <div class="mobile-records" id="candidate-cards"></div>
+          <div class="empty-state" id="empty-results" hidden>
+            <strong>No matching candidates</strong>
+            <p>Adjust the name, roll number, or CET score range and try again.</p>
+          </div>
+        </div>
+
+        <nav class="allotment-pagination" aria-label="Candidate list pagination">
+          <span id="page-status">Page 1 of 1</span>
+          <div>
+            <button class="allotment-page-button" id="previous-page" type="button" disabled>Previous</button>
+            <button class="allotment-page-button" id="next-page" type="button" disabled>Next</button>
+          </div>
+        </nav>
+      </section>
+    </section>
+  </main>
+  <footer class="footer">
+    <p><strong>Source:</strong> Provisional B.Sc. Nursing allotment list, CET-2026 Round 1, dated 24 September 2026.</p>
+    <p>This independent browser preserves each source <strong>Sr. No.</strong>, candidate category, and allotment remark. It does not calculate ranks or change counselling outcomes.</p>
+    <p><a href="https://www.uhsrcetadmissions.in/" target="_blank" rel="noopener">Check the official UHSR CET admissions portal</a></p>
+  </footer>
+</div>
+<script src="js/portal.js"></script>
+<script src="js/nursing-allotments.js" defer></script>
+</body>
+</html>
