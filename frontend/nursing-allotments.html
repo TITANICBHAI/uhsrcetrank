@@ -71,10 +71,10 @@
           <label for="college-order">Arrange colleges</label>
           <select id="college-order">
             <option value="alphabetical" selected>Alphabetical (A–Z)</option>
-            <option value="high-score-total">High-score total (&gt;140)</option>
+            <option value="high-score-total">High-score total + top 5 fallback</option>
           </select>
           <p class="allotment-picker-hint" id="college-count">Colleges in this list</p>
-          <p class="allotment-picker-note">High-score totals use candidates above 140 CET marks and group them by allotted college. They are not preference choices.</p>
+          <p class="allotment-picker-note">Candidates above 140 are combined by allotted college. Colleges with none above 140 use their five highest CET scores as a fallback. These are not preference choices.</p>
           <div class="college-list" id="college-list" role="listbox" aria-label="Colleges"></div>
         </div>
       </aside>

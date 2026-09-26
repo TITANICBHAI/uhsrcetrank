@@ -82,7 +82,7 @@
       return !term || college.name.toLocaleLowerCase("en-IN").includes(term);
     }).sort(function (a, b) {
       if (state.collegeOrder === "high-score-total") {
-        return b.highScoreTotal - a.highScoreTotal ||
+        return b.rankingTotal - a.rankingTotal ||
           b.highScoreCount - a.highScoreCount ||
           a.name.localeCompare(b.name, "en");
       }
@@ -90,7 +90,7 @@
     });
 
     elements.collegeCount.textContent = state.collegeOrder === "high-score-total"
-      ? colleges.length + " colleges · ranked by combined score above 140"
+      ? colleges.length + " colleges · >140 totals with top-5 fallback"
       : colleges.length + " colleges · alphabetical order";
     if (!visible.length) {
       elements.collegeList.innerHTML = '<div class="empty-state"><strong>No college found</strong><p>Try a shorter name or clear the search.</p></div>';
@@ -99,8 +99,11 @@
 
     elements.collegeList.innerHTML = visible.map(function (college) {
       var metrics = state.collegeOrder === "high-score-total"
-        ? '<span class="college-metrics"><span class="college-count">' + college.highScoreCount.toLocaleString() +
-          ' high-score</span><span class="college-score-total">' + college.highScoreTotal.toLocaleString() + ' total</span></span>'
+        ? (college.usesTopFiveFallback
+          ? '<span class="college-metrics"><span class="college-count">Top 5 marks</span><span class="college-score-total">' +
+            college.topFiveTotal.toLocaleString() + ' total</span></span>'
+          : '<span class="college-metrics"><span class="college-count">' + college.highScoreCount.toLocaleString() +
+            ' above 140</span><span class="college-score-total">' + college.highScoreTotal.toLocaleString() + ' total</span></span>')
         : '<span class="college-metrics"><span class="college-count">' + college.count.toLocaleString() + "</span></span>";
       return '<button class="college-option" type="button" role="option" data-college="' +
         escapeHtml(college.name) + '" aria-selected="' + String(college.name === state.selectedCollege) + '">' +
@@ -188,13 +191,23 @@
     });
     colleges = Array.from(recordsByCollege.entries()).map(function (entry) {
       var highScoreRecords = entry[1].filter(function (record) { return record.cetScore > 140; });
+      var topFiveScores = entry[1].map(function (record) { return record.cetScore; })
+        .sort(function (a, b) { return b - a; })
+        .slice(0, 5);
+      var highScoreTotal = highScoreRecords.reduce(function (total, record) {
+        return total + record.cetScore;
+      }, 0);
+      var topFiveTotal = topFiveScores.reduce(function (total, score) {
+        return total + score;
+      }, 0);
       return {
         name: entry[0],
         count: entry[1].length,
         highScoreCount: highScoreRecords.length,
-        highScoreTotal: highScoreRecords.reduce(function (total, record) {
-          return total + record.cetScore;
-        }, 0)
+        highScoreTotal: highScoreTotal,
+        topFiveTotal: topFiveTotal,
+        usesTopFiveFallback: highScoreRecords.length === 0,
+        rankingTotal: highScoreRecords.length ? highScoreTotal : topFiveTotal
       };
     }).sort(function (a, b) {
       return a.name.localeCompare(b.name, "en");
