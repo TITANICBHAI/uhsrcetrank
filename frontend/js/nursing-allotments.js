@@ -9,6 +9,7 @@
   var state = {
     selectedCollege: "",
     collegeSearch: "",
+    collegeOrder: "alphabetical",
     candidateSearch: "",
     minScore: "",
     maxScore: "",
@@ -21,6 +22,7 @@
     layout: document.querySelector(".allotment-layout"),
     datasetSummary: document.getElementById("dataset-summary"),
     collegeSearch: document.getElementById("college-search"),
+    collegeOrder: document.getElementById("college-order"),
     collegeCount: document.getElementById("college-count"),
     collegeList: document.getElementById("college-list"),
     selectedCollege: document.getElementById("selected-college"),
@@ -78,19 +80,32 @@
     var term = state.collegeSearch.trim().toLocaleLowerCase("en-IN");
     var visible = colleges.filter(function (college) {
       return !term || college.name.toLocaleLowerCase("en-IN").includes(term);
+    }).sort(function (a, b) {
+      if (state.collegeOrder === "high-score-total") {
+        return b.highScoreTotal - a.highScoreTotal ||
+          b.highScoreCount - a.highScoreCount ||
+          a.name.localeCompare(b.name, "en");
+      }
+      return a.name.localeCompare(b.name, "en");
     });
 
-    elements.collegeCount.textContent = colleges.length + " colleges in this list";
+    elements.collegeCount.textContent = state.collegeOrder === "high-score-total"
+      ? colleges.length + " colleges · ranked by combined score above 140"
+      : colleges.length + " colleges · alphabetical order";
     if (!visible.length) {
       elements.collegeList.innerHTML = '<div class="empty-state"><strong>No college found</strong><p>Try a shorter name or clear the search.</p></div>';
       return;
     }
 
     elements.collegeList.innerHTML = visible.map(function (college) {
+      var metrics = state.collegeOrder === "high-score-total"
+        ? '<span class="college-metrics"><span class="college-count">' + college.highScoreCount.toLocaleString() +
+          ' high-score</span><span class="college-score-total">' + college.highScoreTotal.toLocaleString() + ' total</span></span>'
+        : '<span class="college-metrics"><span class="college-count">' + college.count.toLocaleString() + "</span></span>";
       return '<button class="college-option" type="button" role="option" data-college="' +
         escapeHtml(college.name) + '" aria-selected="' + String(college.name === state.selectedCollege) + '">' +
         '<span class="college-option-name">' + escapeHtml(college.name) + '</span>' +
-        '<span class="college-count">' + college.count.toLocaleString() + '</span></button>';
+        metrics + '</button>';
     }).join("");
   }
 
@@ -172,7 +187,15 @@
       collegeRecords.sort(function (a, b) { return a.serialNo - b.serialNo; });
     });
     colleges = Array.from(recordsByCollege.entries()).map(function (entry) {
-      return { name: entry[0], count: entry[1].length };
+      var highScoreRecords = entry[1].filter(function (record) { return record.cetScore > 140; });
+      return {
+        name: entry[0],
+        count: entry[1].length,
+        highScoreCount: highScoreRecords.length,
+        highScoreTotal: highScoreRecords.reduce(function (total, record) {
+          return total + record.cetScore;
+        }, 0)
+      };
     }).sort(function (a, b) {
       return a.name.localeCompare(b.name, "en");
     });
@@ -190,6 +213,10 @@
 
   elements.collegeSearch.addEventListener("input", function () {
     state.collegeSearch = elements.collegeSearch.value;
+    renderCollegeList();
+  });
+  elements.collegeOrder.addEventListener("change", function () {
+    state.collegeOrder = elements.collegeOrder.value;
     renderCollegeList();
   });
 
