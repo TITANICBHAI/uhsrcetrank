@@ -1,7 +1,9 @@
 (function () {
   "use strict";
 
-  var dataUrl = "data/bsc-nursing-allotments-2026-27.json";
+  var dataUrl = document.body.getAttribute("data-allotment-data") ||
+    "data/bsc-nursing-allotments-2026-27.json";
+  var showPersonalFields = document.body.getAttribute("data-show-personal-fields") !== "false";
   var pageSizeOptions = [25, 50, 100];
   var records = [];
   var recordsByCollege = new Map();
@@ -61,6 +63,13 @@
     return (Number.isInteger(number) ? String(number) : String(number).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "")) + "%";
   }
 
+  function formatListDate(value) {
+    var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ""));
+    if (!match) return value || "unknown date";
+    return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])))
+      .toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  }
+
   function getFilteredRecords(selectedRecords) {
     var term = state.candidateSearch.trim().toLocaleLowerCase("en-IN");
     var minimum = state.minScore === "" ? Number.NEGATIVE_INFINITY : Number(state.minScore);
@@ -113,13 +122,16 @@
   }
 
   function renderRecordRow(record) {
+    var personalCells = showPersonalFields
+      ? "<td>" + escapeHtml(formatPercent(record.qualifyingPercent)) + "</td>" +
+        "<td>" + escapeHtml(record.dateOfBirth) + "</td>"
+      : "";
     return "<tr>" +
       '<td class="serial-cell">' + escapeHtml(record.serialNo) + "</td>" +
       "<td><span class=\"candidate-name\">" + escapeHtml(record.candidateName) + "</span>" +
         '<span class="candidate-sub">Roll no. ' + escapeHtml(record.rollNo) + "</span></td>" +
       '<td class="candidate-score">' + escapeHtml(record.cetScore) + "</td>" +
-      "<td>" + escapeHtml(formatPercent(record.qualifyingPercent)) + "</td>" +
-      "<td>" + escapeHtml(record.dateOfBirth) + "</td>" +
+      personalCells +
       '<td><span class="category-tag">' + escapeHtml(record.category) + "</span></td>" +
       "<td>" + escapeHtml(record.course) + "</td>" +
       '<td class="remark-cell">' + escapeHtml(record.remark) + "</td>" +
@@ -127,13 +139,16 @@
   }
 
   function renderRecordCard(record) {
+    var personalFields = showPersonalFields
+      ? "<div><dt>Qualifying %</dt><dd>" + escapeHtml(formatPercent(record.qualifyingPercent)) + "</dd></div>" +
+        "<div><dt>Date of birth</dt><dd>" + escapeHtml(record.dateOfBirth) + "</dd></div>"
+      : "";
     return '<article class="record-card">' +
       '<div class="record-top"><div><span class="candidate-name">' + escapeHtml(record.candidateName) + "</span>" +
       '<span class="candidate-sub">Sr. No. ' + escapeHtml(record.serialNo) + " · Roll no. " + escapeHtml(record.rollNo) + "</span></div>" +
       '<span class="record-score">CET ' + escapeHtml(record.cetScore) + "</span></div>" +
       '<dl class="record-meta">' +
-      "<div><dt>Qualifying %</dt><dd>" + escapeHtml(formatPercent(record.qualifyingPercent)) + "</dd></div>" +
-      "<div><dt>Date of birth</dt><dd>" + escapeHtml(record.dateOfBirth) + "</dd></div>" +
+      personalFields +
       '<div><dt>Category</dt><dd><span class="category-tag">' + escapeHtml(record.category) + "</span></dd></div>" +
       "<div><dt>Course</dt><dd>" + escapeHtml(record.course) + "</dd></div>" +
       "<div><dt>Remark / status</dt><dd>" + escapeHtml(record.remark) + "</dd></div>" +
@@ -218,7 +233,7 @@
       colleges.length + " colleges · CET scores " +
       Math.min.apply(Math, records.map(function (record) { return record.cetScore; })) + "–" +
       Math.max.apply(Math, records.map(function (record) { return record.cetScore; })) +
-      " · List dated 24 September 2026";
+      " · List dated " + formatListDate(data.asOf || "2026-09-24");
     elements.layout.hidden = false;
     elements.loadMessage.hidden = true;
     render();

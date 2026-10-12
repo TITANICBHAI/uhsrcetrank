@@ -11,3 +11,4 @@ activation/
 attached_assets/
 *.log
 .pythonlibs/
+.agents/outputs/

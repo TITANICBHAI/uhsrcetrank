@@ -2,16 +2,16 @@
 
 An independent candidate utility for looking up UHSR CET 2026 records and displaying an **Estimated Merit Position** only after a real dataset has been imported, validated, and published.
 
-This repository intentionally does **not** claim affiliation with UHSR, the Department of Medical Education and Research, or the Government of Haryana. The separate B.Sc. Nursing allotment browser reproduces records from the publicly released 2026–27 Round 1 provisional list, including candidate names, roll numbers, dates of birth, CET scores, categories, colleges, and allotment remarks. It preserves the source “Sr. No.” values and does not treat them as ranks.
+This repository intentionally does **not** claim affiliation with UHSR, the Department of Medical Education and Research, or the Government of Haryana. The separate nursing allotment browsers reproduce records from publicly released 2026–27 provisional lists and preserve source “Sr. No.” values without treating them as ranks. The M.Sc. Nursing Round 1 page omits date of birth and qualifying-exam percentage from its visible interface, but those fields remain in its static JSON dataset and are retrievable by visitors. Do not treat UI omission as data privacy.
 
 ## Stack
 
 - `frontend/` — plain HTML5, CSS3, and vanilla JavaScript; suitable for Cloudflare Pages
-- `frontend/nursing-allotments.html` and `frontend/nursing-round2-allotments.html` — college-based candidate browsers for the 2026–27 B.Sc. Nursing Round 1 and Round 2 allotment lists
+- `frontend/nursing-allotments.html`, `frontend/nursing-round2-allotments.html`, and `frontend/msc-nursing-allotments.html` — college-based candidate browsers for the 2026–27 B.Sc. Nursing Round 1 and 2 and M.Sc. Nursing Round 1 lists
 - `backend/` — local-only Python 3.12 importer, validation system, and reusable ranking engine
-- `source/` — reviewed source Markdown, including filtered B.Sc. Nursing Round 1 and Round 2 allotment lists, and the generated ranked Markdown dataset
-- `frontend/data/` — the combined UG Markdown datasets and static B.Sc. Nursing Round 1 and Round 2 allotment JSON
-- `scripts/` — reproducible PDF-to-Markdown and Markdown-to-frontend-data scripts
+- `source/` — reviewed source Markdown, including filtered B.Sc. Nursing and M.Sc. Nursing allotment lists, and the generated ranked Markdown dataset
+- `frontend/data/` — combined UG Markdown datasets and static nursing allotment JSON files
+- `scripts/` — reproducible PDF extraction, verification, and data conversion scripts
 - `worker/` — Cloudflare Worker API and D1 schema for published data
 - `plan/` — the supplied planning pack and source notes
 
