@@ -27,13 +27,13 @@ args = "Push workspace to GitHub"
 name = "Start application"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 5000"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && ../.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 5000"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Push workspace to GitHub"

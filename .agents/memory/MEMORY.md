@@ -1,2 +1,3 @@
 - [Managed PostgreSQL runtime](database-runtime.md) — normalize Replit DATABASE_URL and sslmode before using SQLAlchemy asyncpg.
 - [Cloudflare publishing safety](cloudflare-publishing.md) — fail closed on unresolved positions and use stable dataset references in D1 imports.
+- [Python package environment](python-package-environment.md) — when the Nix-backed default Python is unwritable, use an isolated uv-managed `.venv`.

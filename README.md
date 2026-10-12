@@ -7,10 +7,10 @@ This repository intentionally does **not** claim affiliation with UHSR, the Depa
 ## Stack
 
 - `frontend/` — plain HTML5, CSS3, and vanilla JavaScript; suitable for Cloudflare Pages
-- `frontend/nursing-allotments.html` — one-page college switcher and candidate browser for the 2026–27 B.Sc. Nursing Round 1 list
+- `frontend/nursing-allotments.html` and `frontend/nursing-round2-allotments.html` — college-based candidate browsers for the 2026–27 B.Sc. Nursing Round 1 and Round 2 allotment lists
 - `backend/` — local-only Python 3.12 importer, validation system, and reusable ranking engine
-- `source/` — reviewed source Markdown, including the filtered B.Sc. Nursing Round 1 allotment list, and the generated ranked Markdown dataset
-- `frontend/data/` — the combined UG Markdown datasets and the static B.Sc. Nursing allotment JSON
+- `source/` — reviewed source Markdown, including filtered B.Sc. Nursing Round 1 and Round 2 allotment lists, and the generated ranked Markdown dataset
+- `frontend/data/` — the combined UG Markdown datasets and static B.Sc. Nursing Round 1 and Round 2 allotment JSON
 - `scripts/` — reproducible PDF-to-Markdown and Markdown-to-frontend-data scripts
 - `worker/` — Cloudflare Worker API and D1 schema for published data
 - `plan/` — the supplied planning pack and source notes
@@ -76,3 +76,15 @@ The GitHub Actions workflow runs on pushes and pull requests. It performs Python
 The calculator must remain unavailable for an exam until its source provenance, import validation, ranking semantics, and manual smoke tests have been reviewed by an authorized operator. See `plan/05_DATA_ACTIVATION_RUNBOOK_1789482516318.md`. The first public deployment should remain unavailable until a real dataset is imported, validated, reviewed, and published.
 
 The B.Sc. Nursing allotment browser is a separate read-only view of the published provisional Round 1 list. Its candidate details are served as a static file from `frontend/data/bsc-nursing-allotments-2026-27.json`; use the matching Markdown file in `source/` to review its provenance. It does not calculate a merit position, alter allotment outcomes, or replace the official counselling portal.
+
+The Round 2 list is regenerated directly from its source PDF with the geometry-aware, fail-closed extractor:
+
+```bash
+uv venv .venv --python python3.12
+uv pip install --python .venv/bin/python -r backend/requirements.txt
+.venv/bin/python scripts/convert_nursing_round2.py attached_assets/264_1791820346097.pdf \
+  --markdown source/nursing-round2-allotments-2026-27.md \
+  --json frontend/data/nursing-round2-allotments-2026-27.json
+```
+
+The extractor validates every source serial before writing either output and keeps date of birth and qualifying-exam percentage in the records. The Round 2 page omits those two fields from its visible table and cards.

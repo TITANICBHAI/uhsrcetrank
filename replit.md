@@ -8,7 +8,7 @@ The configured `Start application` workflow serves the FastAPI backend and the s
 
 ```bash
 cd backend
-python -m uvicorn main:app --host 0.0.0.0 --port 5000
+../.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 5000
 ```
 
 The local preview intentionally starts with the calculator unavailable until a real dataset is imported, validated, reviewed, and published. Use the local FastAPI compatibility admin flow for preview data; production uses `backend/export_d1.py`, Wrangler, and protected Worker actions.
