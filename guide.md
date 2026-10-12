@@ -134,7 +134,7 @@ The HTML was parsed, Markdown and JSON record counts were checked, and the page 
 
 The configured `Push workspace to GitHub` workflow runs `scripts/push_to_github.sh`. The script stages workspace changes, commits them if needed, sets the `github` remote to `https://github.com/TITANICBHAI/uhsrcetrank.git`, and pushes `HEAD` to `GITHUB_BRANCH` (default `main`).
 
-The script checks `GITHUB_PERSONAL_ACCESS_TOKEN` from Replit Secrets and passes it through a temporary Git askpass helper. It supplies a generic `Replit Workspace` author identity for that commit command only, disables commit signing, and disables interactive terminal prompts; it does not ask for or change the user's global Git name or email. The token is not placed in the remote URL, source files, or command output. Do not paste the token into this guide or any repository file.
+The script checks `GITHUB_PERSONAL_ACCESS_TOKEN` from Replit Secrets and passes it through a temporary Git askpass helper. It supplies the generic author `Replit Workspace <replit-workspace@users.noreply.github.com>` for that commit command only, disables commit signing, and disables interactive terminal prompts; it does not ask for or change the user's global Git name or email. GitHub may not link this generic author to a personal profile. The token is not placed in the remote URL, source files, or command output. Do not paste the token into this guide or any repository file.
 
 To publish a verified change:
 
