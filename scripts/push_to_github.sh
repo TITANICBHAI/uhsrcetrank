@@ -4,11 +4,16 @@ set -euo pipefail
 readonly repository_url="https://github.com/TITANICBHAI/uhsrcetrank.git"
 readonly branch="${GITHUB_BRANCH:-main}"
 readonly remote_name="github"
+readonly commit_author_name="Replit Workspace"
+readonly commit_author_email="replit-workspace@users.noreply.github.com"
 
 if [[ -z "${GITHUB_PERSONAL_ACCESS_TOKEN:-}" ]]; then
   echo "GITHUB_PERSONAL_ACCESS_TOKEN is not configured in Replit Secrets." >&2
   exit 1
 fi
+
+export GIT_TERMINAL_PROMPT=0
+export GCM_INTERACTIVE=never
 
 git rev-parse --show-toplevel >/dev/null
 git add -A
@@ -17,7 +22,10 @@ if git diff --cached --quiet; then
   echo "No workspace changes to commit."
 else
   commit_message="${GITHUB_COMMIT_MESSAGE:-Sync workspace from Replit}"
-  git commit -m "$commit_message"
+  git -c user.name="$commit_author_name" \
+    -c user.email="$commit_author_email" \
+    -c commit.gpgsign=false \
+    commit -m "$commit_message"
 fi
 
 if git remote get-url "$remote_name" >/dev/null 2>&1; then
@@ -41,6 +49,5 @@ esac
 ASKPASS
 
 export GIT_ASKPASS="$askpass_file"
-export GIT_TERMINAL_PROMPT=0
 git push "$remote_name" "HEAD:$branch"
 echo "Workspace pushed to $repository_url ($branch)."
