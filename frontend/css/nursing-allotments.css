@@ -17,6 +17,20 @@
 .allotment-dataset-summary { margin: 10px 0 0; color: var(--blue-dark); font-weight: 700; }
 .allotment-notice { margin: 0; }
 .allotment-notice h2 { font-size: 0.95rem; }
+.course-browser-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  padding: 7px 10px;
+  color: var(--blue-dark);
+  background: var(--white);
+  border: 1px solid var(--blue-mid);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.course-browser-link:hover { color: var(--white); background: var(--blue-mid); }
 .allotment-layout {
   display: grid;
   grid-template-columns: minmax(250px, 0.75fr) minmax(0, 2.25fr);

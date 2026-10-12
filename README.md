@@ -7,7 +7,7 @@ This repository intentionally does **not** claim affiliation with UHSR, the Depa
 ## Stack
 
 - `frontend/` — plain HTML5, CSS3, and vanilla JavaScript; suitable for Cloudflare Pages
-- `frontend/nursing-allotments.html`, `frontend/nursing-round2-allotments.html`, and `frontend/msc-nursing-allotments.html` — college-based candidate browsers for the 2026–27 B.Sc. Nursing Round 1 and 2 and M.Sc. Nursing Round 1 lists
+- `frontend/nursing-allotments.html`, `frontend/nursing-round2-allotments.html`, `frontend/msc-nursing-allotments.html`, and `frontend/msc-nursing-round2-allotments.html` — college-based candidate browsers for the 2026–27 B.Sc. Nursing Round 1 and 2 and M.Sc. Nursing Round 1 and 2 lists; `frontend/msc-nursing-by-course.html` and `frontend/msc-nursing-round2-by-course.html` — M.Sc. Nursing course browsers ordered by CET score
 - `backend/` — local-only Python 3.12 importer, validation system, and reusable ranking engine
 - `source/` — reviewed source Markdown, including filtered B.Sc. Nursing and M.Sc. Nursing allotment lists, and the generated ranked Markdown dataset
 - `frontend/data/` — combined UG Markdown datasets and static nursing allotment JSON files

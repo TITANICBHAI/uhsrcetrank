@@ -1,7 +1,9 @@
 (function () {
   "use strict";
 
-  var dataUrl = "data/nursing-round2-allotments-2026-27.json";
+  var dataUrl = document.body.getAttribute("data-allotment-data") ||
+    "data/nursing-round2-allotments-2026-27.json";
+  var expectedCourse = document.body.getAttribute("data-allotment-course") || "B.Sc. Nursing";
   var pageSizeOptions = [25, 50, 100];
   var records = [];
   var recordsByCollege = new Map();
@@ -189,9 +191,9 @@
 
   function initialize(data) {
     records = Array.isArray(data.records) ? data.records : [];
-    if (!records.length) throw new Error("The source file contains no B.Sc. Nursing records.");
-    if (Number(data.round) !== 2 || data.course !== "B.Sc. Nursing") {
-      throw new Error("The loaded file is not the B.Sc. Nursing Round 2 dataset.");
+    if (!records.length) throw new Error("The source file contains no " + expectedCourse + " records.");
+    if (Number(data.round) !== 2 || data.course !== expectedCourse) {
+      throw new Error("The loaded file is not the " + expectedCourse + " Round 2 dataset.");
     }
 
     records.forEach(function (record) {

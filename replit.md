@@ -4,11 +4,11 @@ This project is an independent candidate utility and is not affiliated with UHSR
 
 ## Preview
 
-The configured `Start application` workflow serves the FastAPI backend and the static frontend together on port 5000:
+The configured `Start application` workflow serves the FastAPI backend and the static frontend together on port 5000, using the Replit-managed Python package environment:
 
 ```bash
 cd backend
-../.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 5000
+../.pythonlibs/bin/python -m uvicorn main:app --host 0.0.0.0 --port 5000
 ```
 
 The local preview intentionally starts with the calculator unavailable until a real dataset is imported, validated, reviewed, and published. Use the local FastAPI compatibility admin flow for preview data; production uses `backend/export_d1.py`, Wrangler, and protected Worker actions.
