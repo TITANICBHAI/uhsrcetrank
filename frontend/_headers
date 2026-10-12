@@ -1,5 +1,8 @@
 /admin.html
   X-Robots-Tag: noindex, nofollow
 
+/data/*
+  X-Robots-Tag: noindex, nofollow, nosnippet
+
 /*.html
   Cache-Control: public, max-age=3600
