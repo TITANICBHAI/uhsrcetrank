@@ -108,7 +108,10 @@
     var pageRecords = filtered.slice(start, start + state.pageSize);
     var firstShown = filtered.length ? start + 1 : 0;
     var lastShown = Math.min(start + state.pageSize, filtered.length);
-    var scores = courseRecords.map(function (record) { return record.cetScore; });
+    var categoryRecords = state.allottedCategory
+      ? courseRecords.filter(function (record) { return getCategory(record) === state.allottedCategory; })
+      : courseRecords;
+    var scores = categoryRecords.map(function (record) { return record.cetScore; });
 
     elements.selectedCourse.textContent = state.selectedCourse || "No course selected";
     elements.selectedTotal.textContent = courseRecords.length.toLocaleString();

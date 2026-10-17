@@ -190,7 +190,10 @@
     var pageRecords = filtered.slice(start, start + state.pageSize);
     var firstShown = filtered.length ? start + 1 : 0;
     var lastShown = Math.min(start + state.pageSize, filtered.length);
-    var scores = selectedRecords.map(function (record) { return record.cetScore; });
+    var categoryRecords = state.allottedCategory
+      ? selectedRecords.filter(function (record) { return record.allottedCategory === state.allottedCategory; })
+      : selectedRecords;
+    var scores = categoryRecords.map(function (record) { return record.cetScore; });
 
     elements.selectedCollege.textContent = state.selectedCollege || "No college selected";
     elements.selectedTotal.textContent = selectedRecords.length.toLocaleString();
