@@ -120,9 +120,6 @@
         '<span class="candidate-sub">Roll no. ' + escapeHtml(record.rollNo) + "</span></td>" +
       '<td class="candidate-score">' + escapeHtml(record.cetScore) + "</td>" +
       "<td>" + escapeHtml(visibleValue(record.previousInstitute)) + "</td>" +
-      "<td>" + escapeHtml(visibleValue(record.previousCourse)) + "</td>" +
-      '<td><span class="category-tag">' + escapeHtml(visibleValue(record.previousCategory)) + "</span></td>" +
-      '<td class="remark-cell">' + escapeHtml(visibleValue(record.previousRemark)) + "</td>" +
       "<td>" + escapeHtml(visibleValue(record.allottedInstitute)) + "</td>" +
       "<td>" + escapeHtml(visibleValue(record.allottedCourse)) + "</td>" +
       '<td><span class="category-tag">' + escapeHtml(visibleValue(record.allottedCategory)) + "</span></td>" +
@@ -133,9 +130,6 @@
   function renderRecordCard(record) {
     var details = [
       ["Previous institute", record.previousInstitute],
-      ["Previous course", record.previousCourse],
-      ["Previous category", record.previousCategory],
-      ["Previous remark", record.previousRemark],
       ["Round 2 institute", record.allottedInstitute],
       ["Allotted course", record.allottedCourse],
       ["Allotted category", record.allottedCategory],

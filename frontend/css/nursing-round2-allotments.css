@@ -35,3 +35,8 @@
 .round2-allotment-table .remark-cell { white-space: normal; overflow-wrap: anywhere; }
 .round2-record-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .round2-record-meta dd { overflow-wrap: anywhere; }
+body.bsc-nursing-round2 .round2-allotment-table { min-width: 1400px; }
+body.bsc-nursing-round2 .round2-allotment-table th:nth-child(5),
+body.bsc-nursing-round2 .round2-allotment-table td:nth-child(5) { width: 220px; }
+body.bsc-nursing-round2 .round2-allotment-table th:nth-child(8),
+body.bsc-nursing-round2 .round2-allotment-table td:nth-child(8) { width: 135px; }
