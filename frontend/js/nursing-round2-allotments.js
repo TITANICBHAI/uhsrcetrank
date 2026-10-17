@@ -4,6 +4,7 @@
   var dataUrl = document.body.getAttribute("data-allotment-data") ||
     "data/nursing-round2-allotments-2026-27.json";
   var expectedCourse = document.body.getAttribute("data-allotment-course") || "B.Sc. Nursing";
+  var showPreviousRoundFields = expectedCourse !== "B.Sc. Nursing";
   var pageSizeOptions = [25, 50, 100];
   var records = [];
   var recordsByCollege = new Map();
@@ -15,6 +16,7 @@
     candidateSearch: "",
     minScore: "",
     maxScore: "",
+    allottedCategory: "",
     page: 1,
     pageSize: pageSizeOptions[0]
   };
@@ -35,6 +37,7 @@
     candidateSearch: document.getElementById("candidate-search"),
     minScore: document.getElementById("min-score"),
     maxScore: document.getElementById("max-score"),
+    allottedCategory: document.getElementById("allotted-category-filter"),
     resetFilters: document.getElementById("reset-filters"),
     pageSize: document.getElementById("page-size"),
     resultsSummary: document.getElementById("results-summary"),
@@ -62,6 +65,22 @@
     return value && value !== "-" ? value : "—";
   }
 
+  function renderCategoryFilter(selectedRecords) {
+    var categories = Array.from(new Set(selectedRecords.map(function (record) {
+      return String(record.allottedCategory == null ? "" : record.allottedCategory).trim();
+    }).filter(Boolean))).sort(function (a, b) {
+      return a.localeCompare(b, "en");
+    });
+    if (state.allottedCategory && categories.indexOf(state.allottedCategory) === -1) {
+      state.allottedCategory = "";
+    }
+    elements.allottedCategory.innerHTML = '<option value="">All categories</option>' +
+      categories.map(function (category) {
+        return '<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + "</option>";
+      }).join("");
+    elements.allottedCategory.value = state.allottedCategory;
+  }
+
   function getFilteredRecords(selectedRecords) {
     var term = state.candidateSearch.trim().toLocaleLowerCase("en-IN");
     var minimum = state.minScore === "" ? Number.NEGATIVE_INFINITY : Number(state.minScore);
@@ -71,7 +90,8 @@
       var matchesCandidate = !term ||
         record.candidateName.toLocaleLowerCase("en-IN").includes(term) ||
         record.rollNo.toLocaleLowerCase("en-IN").includes(term);
-      return matchesCandidate && record.cetScore >= minimum && record.cetScore <= maximum;
+      var matchesCategory = !state.allottedCategory || record.allottedCategory === state.allottedCategory;
+      return matchesCandidate && record.cetScore >= minimum && record.cetScore <= maximum && matchesCategory;
     }).sort(function (a, b) {
       return a.serialNo - b.serialNo;
     });
@@ -114,12 +134,18 @@
   }
 
   function renderRecordRow(record) {
+    var previousRoundCells = showPreviousRoundFields
+      ? "<td>" + escapeHtml(visibleValue(record.previousCourse)) + "</td>" +
+        '<td><span class="category-tag">' + escapeHtml(visibleValue(record.previousCategory)) + "</span></td>" +
+        '<td class="remark-cell">' + escapeHtml(visibleValue(record.previousRemark)) + "</td>"
+      : "";
     return "<tr>" +
       '<td class="serial-cell">' + escapeHtml(record.serialNo) + "</td>" +
       "<td><span class=\"candidate-name\">" + escapeHtml(record.candidateName) + "</span>" +
         '<span class="candidate-sub">Roll no. ' + escapeHtml(record.rollNo) + "</span></td>" +
       '<td class="candidate-score">' + escapeHtml(record.cetScore) + "</td>" +
       "<td>" + escapeHtml(visibleValue(record.previousInstitute)) + "</td>" +
+      previousRoundCells +
       "<td>" + escapeHtml(visibleValue(record.allottedInstitute)) + "</td>" +
       "<td>" + escapeHtml(visibleValue(record.allottedCourse)) + "</td>" +
       '<td><span class="category-tag">' + escapeHtml(visibleValue(record.allottedCategory)) + "</span></td>" +
@@ -129,12 +155,21 @@
 
   function renderRecordCard(record) {
     var details = [
-      ["Previous institute", record.previousInstitute],
+      ["Previous institute", record.previousInstitute]
+    ];
+    if (showPreviousRoundFields) {
+      details.push(
+        ["Previous course", record.previousCourse],
+        ["Previous category", record.previousCategory],
+        ["Previous remark", record.previousRemark]
+      );
+    }
+    details.push(
       ["Round 2 institute", record.allottedInstitute],
       ["Allotted course", record.allottedCourse],
       ["Allotted category", record.allottedCategory],
       ["Round 2 remark", record.remark]
-    ];
+    );
     return '<article class="record-card">' +
       '<div class="record-top"><div><span class="candidate-name">' + escapeHtml(record.candidateName) + "</span>" +
       '<span class="candidate-sub">Sr. No. ' + escapeHtml(record.serialNo) + " · Roll no. " + escapeHtml(record.rollNo) + "</span></div>" +
@@ -147,6 +182,7 @@
 
   function renderCandidates() {
     var selectedRecords = recordsByCollege.get(state.selectedCollege) || [];
+    renderCategoryFilter(selectedRecords);
     var filtered = getFilteredRecords(selectedRecords);
     var pageCount = Math.max(1, Math.ceil(filtered.length / state.pageSize));
     state.page = Math.min(state.page, pageCount);
@@ -259,11 +295,16 @@
     state.maxScore = elements.maxScore.value;
     resetPage();
   });
+  elements.allottedCategory.addEventListener("change", function () {
+    state.allottedCategory = elements.allottedCategory.value;
+    resetPage();
+  });
   elements.resetFilters.addEventListener("click", function () {
     state.collegeSearch = "";
     state.candidateSearch = "";
     state.minScore = "";
     state.maxScore = "";
+    state.allottedCategory = "";
     state.collegeOrder = "alphabetical";
     state.pageSize = pageSizeOptions[0];
     state.page = 1;
@@ -271,6 +312,7 @@
     elements.candidateSearch.value = "";
     elements.minScore.value = "";
     elements.maxScore.value = "";
+    elements.allottedCategory.value = "";
     elements.collegeOrder.value = "alphabetical";
     elements.pageSize.value = String(state.pageSize);
     render();

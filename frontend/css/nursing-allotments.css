@@ -132,7 +132,7 @@
 .allotment-stat strong { color: var(--blue-dark); font-size: 1.1rem; }
 .allotment-filters {
   display: grid;
-  grid-template-columns: minmax(170px, 1.5fr) minmax(100px, 0.6fr) minmax(100px, 0.6fr) auto;
+  grid-template-columns: minmax(170px, 1.4fr) minmax(90px, 0.6fr) minmax(90px, 0.6fr) minmax(170px, 1fr) auto;
   gap: 10px;
   align-items: end;
   margin-bottom: 12px;
@@ -142,7 +142,8 @@
 }
 .allotment-filters > div { min-width: 0; }
 .allotment-filters label { font-size: 0.77rem; }
-.allotment-filters input { min-width: 0; }
+.allotment-filters input,
+.allotment-filters select { min-width: 0; }
 .allotment-reset {
   width: auto;
   min-width: 110px;
@@ -222,7 +223,7 @@
 #load-message { margin-bottom: 14px; }
 @media (max-width: 900px) {
   .allotment-layout { grid-template-columns: minmax(210px, 0.8fr) minmax(0, 2fr); }
-  .allotment-filters { grid-template-columns: minmax(150px, 1.4fr) minmax(90px, 0.6fr) minmax(90px, 0.6fr); }
+  .allotment-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .allotment-reset { grid-column: 1 / -1; width: 100%; }
 }
 @media (max-width: 768px) {

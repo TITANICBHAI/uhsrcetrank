@@ -15,6 +15,7 @@
     candidateSearch: "",
     minScore: "",
     maxScore: "",
+    allottedCategory: "",
     page: 1,
     pageSize: pageSizeOptions[0]
   };
@@ -33,6 +34,7 @@
     candidateSearch: document.getElementById("candidate-search"),
     minScore: document.getElementById("min-score"),
     maxScore: document.getElementById("max-score"),
+    allottedCategory: document.getElementById("allotted-category-filter"),
     resetFilters: document.getElementById("reset-filters"),
     pageSize: document.getElementById("page-size"),
     resultsSummary: document.getElementById("results-summary"),
@@ -60,6 +62,26 @@
     return value && value !== "-" ? value : "—";
   }
 
+  function getCategory(record) {
+    return isRound2 ? record.allottedCategory : record.category;
+  }
+
+  function renderCategoryFilter(courseRecords) {
+    var categories = Array.from(new Set(courseRecords.map(function (record) {
+      return String(getCategory(record) == null ? "" : getCategory(record)).trim();
+    }).filter(Boolean))).sort(function (a, b) {
+      return a.localeCompare(b, "en");
+    });
+    if (state.allottedCategory && categories.indexOf(state.allottedCategory) === -1) {
+      state.allottedCategory = "";
+    }
+    elements.allottedCategory.innerHTML = '<option value="">All categories</option>' +
+      categories.map(function (category) {
+        return '<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + "</option>";
+      }).join("");
+    elements.allottedCategory.value = state.allottedCategory;
+  }
+
   function getFilteredRecords(courseRecords) {
     var term = state.candidateSearch.trim().toLocaleLowerCase("en-IN");
     var minimum = state.minScore === "" ? Number.NEGATIVE_INFINITY : Number(state.minScore);
@@ -69,7 +91,8 @@
       var matchesCandidate = !term ||
         record.candidateName.toLocaleLowerCase("en-IN").includes(term) ||
         record.rollNo.toLocaleLowerCase("en-IN").includes(term);
-      return matchesCandidate && record.cetScore >= minimum && record.cetScore <= maximum;
+      var matchesCategory = !state.allottedCategory || getCategory(record) === state.allottedCategory;
+      return matchesCandidate && record.cetScore >= minimum && record.cetScore <= maximum && matchesCategory;
     }).sort(function (a, b) {
       return b.cetScore - a.cetScore || a.serialNo - b.serialNo;
     });
@@ -77,6 +100,7 @@
 
   function renderCandidates() {
     var courseRecords = recordsByCourse.get(state.selectedCourse) || [];
+    renderCategoryFilter(courseRecords);
     var filtered = getFilteredRecords(courseRecords);
     var pageCount = Math.max(1, Math.ceil(filtered.length / state.pageSize));
     state.page = Math.min(state.page, pageCount);
@@ -222,15 +246,21 @@
     state.maxScore = elements.maxScore.value;
     resetPage();
   });
+  elements.allottedCategory.addEventListener("change", function () {
+    state.allottedCategory = elements.allottedCategory.value;
+    resetPage();
+  });
   elements.resetFilters.addEventListener("click", function () {
     state.candidateSearch = "";
     state.minScore = "";
     state.maxScore = "";
+    state.allottedCategory = "";
     state.pageSize = pageSizeOptions[0];
     state.page = 1;
     elements.candidateSearch.value = "";
     elements.minScore.value = "";
     elements.maxScore.value = "";
+    elements.allottedCategory.value = "";
     elements.pageSize.value = String(state.pageSize);
     renderCandidates();
   });
